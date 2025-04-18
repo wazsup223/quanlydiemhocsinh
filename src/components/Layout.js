@@ -13,7 +13,6 @@ import {
   Toolbar,
   Typography,
   Divider,
-  Avatar,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -24,7 +23,6 @@ import {
   Person as PersonIcon,
   Assignment as AssignmentIcon,
   Grade as GradeIcon,
- 
 } from '@mui/icons-material';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
@@ -48,13 +46,11 @@ function Layout() {
     { text: 'Quản lý phân công', icon: <AssignmentIcon />, path: '/teaching-assignments' },
     { text: 'Quản lý điểm', icon: <GradeIcon />, path: '/grades' },
     { text: 'Quản lý Đăng Ký Môn', icon: <AppRegistrationIcon />, path: '/course-registrations' },
-    //{ text: 'Quản lý Người Dùng', icon: <PeopleIcon />, path: '/users' },
   ];
 
   const drawer = (
     <div>
       <Toolbar>
-      
         <Typography variant="h6" noWrap component="div">
           Quản Lý Điểm
         </Typography>
@@ -147,4 +143,4 @@ function Layout() {
   );
 }
 
-export default Layout; 
+export default Layout;

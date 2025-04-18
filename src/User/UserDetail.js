@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -16,11 +16,8 @@ function UserDetail() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUser();
-  }, [id]);
-
-  const fetchUser = async () => {
+  // Bọc fetchUser trong useCallback
+  const fetchUser = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/users/read_one.php?id=${id}`);
       if (!response.ok) {
@@ -35,7 +32,11 @@ function UserDetail() {
     } catch (error) {
       console.error('Error fetching user:', error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]); // Thêm fetchUser vào dependency array
 
   if (!user) {
     return (
@@ -103,4 +104,4 @@ function UserDetail() {
   );
 }
 
-export default UserDetail; 
+export default UserDetail;

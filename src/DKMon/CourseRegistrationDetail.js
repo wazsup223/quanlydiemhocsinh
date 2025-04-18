@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -17,13 +17,8 @@ function CourseRegistrationDetail() {
   const [registration, setRegistration] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchRegistration();
-  }, [id]);
-  useEffect(() => {
-    fetchRegistration();
-  }, [fetchRegistration]);
-  async function fetchRegistration() {
+  // Bọc fetchRegistration trong useCallback để giữ tham chiếu ổn định
+  const fetchRegistration = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/course_registrations/read_one.php?id=${id}`);
       if (!response.ok) {
@@ -38,7 +33,12 @@ function CourseRegistrationDetail() {
     } catch (error) {
       console.error('Error fetching registration:', error);
     }
-  }
+  }, [id]); // Thêm id vào dependencies vì fetchRegistration dùng id
+
+  // Gộp hai useEffect thành một
+  useEffect(() => {
+    fetchRegistration();
+  }, [fetchRegistration]); // fetchRegistration đã bao gồm id trong useCallback
 
   if (!registration) {
     return <Typography>Loading...</Typography>;
@@ -102,4 +102,4 @@ function CourseRegistrationDetail() {
   );
 }
 
-export default CourseRegistrationDetail; 
+export default CourseRegistrationDetail;

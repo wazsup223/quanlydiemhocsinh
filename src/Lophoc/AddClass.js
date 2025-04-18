@@ -1,4 +1,3 @@
-// AddClass.js
 import React, { useState, useEffect } from 'react';
 import {
   Box, Button, TextField, Typography, Grid, MenuItem, Paper
@@ -10,9 +9,7 @@ function AddClass() {
   // ====================== State khởi tạo ======================
   const [departments, setDepartments] = useState([]);     // Danh sách khoa
   const [instructors, setInstructors] = useState([]);     // Danh sách giảng viên
-  const [classess,setClassess]=useState([]);//danh sách lớp
   const [formData, setFormData] = useState({
-    
     name: '',
     max_students: '',
     department_id: '',
@@ -25,14 +22,12 @@ function AddClass() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [deptRes, instRes,clsRes] = await Promise.all([
+        const [deptRes, instRes] = await Promise.all([
           axios.get('http://localhost/QLDiem/API/departments/readDepartments.php'),
-          axios.get('http://localhost/QLDiem/API/instructors/read.php'),
-          axios.get('http://localhost/QLDiem/API/classess/readClasses.php')
+          axios.get('http://localhost/QLDiem/API/instructors/read.php')
         ]);
         setDepartments(deptRes.data.data || []);
         setInstructors(instRes.data.data || []);
-        setClassess(clsRes.data.data|| []);
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu:', error);
       }
@@ -86,7 +81,6 @@ function AddClass() {
       <Typography variant="h5" gutterBottom>Thêm lớp học mới</Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
-          
           <Grid item xs={12}>
             <TextField label="Tên lớp" name="name" fullWidth required value={formData.name} onChange={handleChange} />
           </Grid>
@@ -120,18 +114,11 @@ function AddClass() {
               value={formData.host_instructor_id}
               onChange={handleChange}
             >
-              {/*classess.map((cls) => (
-                <MenuItem key={cls.id} value={cls.id}>
-                  {cls.host_instructor_id} - {cls.instructor_name}
-                </MenuItem>
-              ))*/}
               {instructors.map((ins) => (
                 <MenuItem key={ins.id} value={ins.id}>
                   {ins.id} - {ins.instructor_name}
                 </MenuItem>
-                
               ))}
-              
             </TextField>
           </Grid>
         </Grid>

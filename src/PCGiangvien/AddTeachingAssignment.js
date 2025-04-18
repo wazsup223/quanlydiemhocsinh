@@ -23,13 +23,11 @@ function AddTeachingAssignment() {
   const [allSubjects, setAllSubjects] = useState([]); // tất cả môn học từ subjects API
   const [registeredSubjects, setRegisteredSubjects] = useState([]); // lọc ra những môn có sinh viên đăng ký
   const [filteredSubjects, setFilteredSubjects] = useState([]); // danh sách môn học được lọc theo khoa
-  const [classes, setClasses] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchInstructors();
     fetchSubjects();
-    fetchClasses();
     fetchRegisteredSubjects();
   }, []);
 
@@ -64,16 +62,6 @@ function AddTeachingAssignment() {
       }
     } catch (err) {
       console.error('Error fetching registered subjects:', err);
-    }
-  };
-
-  const fetchClasses = async () => {
-    try {
-      const res = await fetch('http://localhost/QLDiem/API/classess/readClasses.php');
-      const data = await res.json();
-      if (data.status === 'success') setClasses(data.data);
-    } catch (err) {
-      console.error('Error fetching classes:', err);
     }
   };
 
@@ -159,45 +147,6 @@ function AddTeachingAssignment() {
             ))}
           </Select>
         </FormControl>
-
-        {/* Nếu sau này cần thêm lớp/học kỳ/năm học thì mở phần này */}
-        {/* 
-        <FormControl fullWidth margin="normal" required>
-          <InputLabel>Lớp</InputLabel>
-          <Select
-            name="class_id"
-            value={assignmentData.class_id}
-            onChange={handleChange}
-            label="Lớp"
-          >
-            {classes.map((classItem) => (
-              <MenuItem key={classItem.id} value={classItem.id}>
-                {classItem.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <TextField
-          fullWidth
-          label="Học kỳ"
-          name="semester"
-          value={assignmentData.semester}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-
-        <TextField
-          fullWidth
-          label="Năm học"
-          name="academic_year"
-          value={assignmentData.academic_year}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        */}
 
         <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
           <Button variant="contained" color="primary" type="submit">

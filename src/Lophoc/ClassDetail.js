@@ -9,26 +9,18 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom'; // Thay useHistory bằng useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
 
 function ClassDetail() {
   const { id } = useParams(); // Lấy id lớp học từ URL
   const [students, setStudents] = useState([]);
-  const [classInfo, setClassInfo] = useState(null); // Thêm state để lưu thông tin lớp
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Dùng useNavigate thay vì useHistory
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        // Lấy thông tin lớp
-
-        const classRes = await axios.get(`http://localhost/QLDiem/API/classess/readClasses.php?id=${id}`);
-        if (classRes.data?.data) {
-          setClassInfo(classRes.data.data); // Lưu thông tin lớp vào state
-        }
 
         // Lấy danh sách sinh viên
         const studentsRes = await axios.get(`http://localhost/QLDiem/API/classess/read_studentClasses.php?id=${id}`);
@@ -70,8 +62,6 @@ function ClassDetail() {
       <Button variant="contained" color="primary" onClick={() => navigate(-1)} sx={{ marginBottom: 2 }}>
         Quay lại
       </Button>
-
-
 
       <Divider sx={{ marginBottom: 2 }} />
 

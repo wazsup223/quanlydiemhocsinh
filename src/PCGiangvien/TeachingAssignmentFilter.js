@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -24,11 +24,62 @@ function TeachingAssignmentFilter() {
   const [filterName, setFilterName] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchData();
-  }, [type, id]);
+  // Bọc fetchInstructors trong useCallback
+  const fetchInstructors = useCallback(async () => {
+    try {
+      const response = await fetch('http://localhost/QLDiem/API/instructors/read.php');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        setInstructors(data.data);
+      } else {
+        console.error('API error:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching instructors:', error);
+    }
+  }, []);
 
-  const fetchData = async () => {
+  // Bọc fetchSubjects trong useCallback
+  const fetchSubjects = useCallback(async () => {
+    try {
+      const response = await fetch('http://localhost/QLDiem/API/subjects/read.php');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        setSubjects(data.data);
+      } else {
+        console.error('API error:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+    }
+  }, []);
+
+  // Bọc fetchClasses trong useCallback
+  const fetchClasses = useCallback(async () => {
+    try {
+      const response = await fetch('http://localhost/QLDiem/API/classes/read.php');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        setClasses(data.data);
+      } else {
+        console.error('API error:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    }
+  }, []);
+
+  // Bọc fetchData trong useCallback
+  const fetchData = useCallback(async () => {
     try {
       let url = '';
       switch (type) {
@@ -62,58 +113,11 @@ function TeachingAssignmentFilter() {
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  };
+  }, [type, id, fetchInstructors, fetchSubjects, fetchClasses]);
 
-  const fetchInstructors = async () => {
-    try {
-      const response = await fetch('http://localhost/QLDiem/API/instructors/read.php');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.status === 'success') {
-        setInstructors(data.data);
-      } else {
-        console.error('API error:', data.message);
-      }
-    } catch (error) {
-      console.error('Error fetching instructors:', error);
-    }
-  };
-
-  const fetchSubjects = async () => {
-    try {
-      const response = await fetch('http://localhost/QLDiem/API/subjects/read.php');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.status === 'success') {
-        setSubjects(data.data);
-      } else {
-        console.error('API error:', data.message);
-      }
-    } catch (error) {
-      console.error('Error fetching subjects:', error);
-    }
-  };
-
-  const fetchClasses = async () => {
-    try {
-      const response = await fetch('http://localhost/QLDiem/API/classes/read.php');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.status === 'success') {
-        setClasses(data.data);
-      } else {
-        console.error('API error:', data.message);
-      }
-    } catch (error) {
-      console.error('Error fetching classes:', error);
-    }
-  };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); // Thêm fetchData vào dependency array
 
   const handleDelete = async (assignmentId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa phân công giảng dạy này?')) {
@@ -222,4 +226,4 @@ function TeachingAssignmentFilter() {
   );
 }
 
-export default TeachingAssignmentFilter; 
+export default TeachingAssignmentFilter;

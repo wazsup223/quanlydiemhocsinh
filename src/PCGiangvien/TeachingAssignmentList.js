@@ -11,11 +11,10 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
-import EditTeachingAssignment from './EditTeachingAssignment'; // 👈 Import component Edit
+import EditTeachingAssignment from './EditTeachingAssignment';
 
 function TeachingAssignmentList() {
   // --- 1. State ---
@@ -25,8 +24,8 @@ function TeachingAssignmentList() {
   const [selectedInstructor, setSelectedInstructor] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [loading, setLoading] = useState(true);
-  const [editOpen, setEditOpen] = useState(false);         // 👈 Dialog mở
-  const [editData, setEditData] = useState(null);          // 👈 Dữ liệu cần sửa
+  const [editOpen, setEditOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
 
   const navigate = useNavigate();
 
@@ -90,11 +89,6 @@ function TeachingAssignmentList() {
     }
   };
 
-  const handleEdit = (row) => {
-    setEditData(row);         // Truyền dữ liệu vào Dialog
-    setEditOpen(true);        // Mở Dialog
-  };
-
   const handleAdd = () => {
     navigate('/teaching-assignments/add');
   };
@@ -112,10 +106,7 @@ function TeachingAssignmentList() {
       headerName: 'Hành động',
       width: 130,
       renderCell: (params) => (
-        <>{/** 
-          <IconButton onClick={() => handleEdit(params.row)} color="primary">
-            <EditIcon />
-          </IconButton>*/}
+        <>
           <IconButton onClick={() => handleDelete(params.row)} color="error">
             <DeleteIcon />
           </IconButton>

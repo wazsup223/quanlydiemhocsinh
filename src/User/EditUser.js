@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -23,11 +23,8 @@ function EditUser() {
   });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUser();
-  }, [id]);
-
-  const fetchUser = async () => {
+  // Bọc fetchUser trong useCallback
+  const fetchUser = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/users/read_one.php?id=${id}`);
       if (!response.ok) {
@@ -42,7 +39,11 @@ function EditUser() {
     } catch (error) {
       console.error('Error fetching user:', error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]); // Thêm fetchUser vào dependency array
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -160,4 +161,4 @@ function EditUser() {
   );
 }
 
-export default EditUser; 
+export default EditUser;

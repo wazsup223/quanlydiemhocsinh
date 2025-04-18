@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -8,7 +8,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -21,11 +20,62 @@ function TeachingAssignmentDetail() {
   const [classItem, setClassItem] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchAssignment();
-  }, [id]);
+  // Bọc fetchInstructor trong useCallback
+  const fetchInstructor = useCallback(async (instructorId) => {
+    try {
+      const response = await fetch(`http://localhost/QLDiem/API/instructors/read_one.php?id=${instructorId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        setInstructor(data.data);
+      } else {
+        console.error('API error:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching instructor:', error);
+    }
+  }, []);
 
-  const fetchAssignment = async () => {
+  // Bọc fetchSubject trong useCallback
+  const fetchSubject = useCallback(async (subjectId) => {
+    try {
+      const response = await fetch(`http://localhost/QLDiem/API/subjects/read_one.php?id=${subjectId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        setSubject(data.data);
+      } else {
+        console.error('API error:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching subject:', error);
+    }
+  }, []);
+
+  // Bọc fetchClass trong useCallback
+  const fetchClass = useCallback(async (classId) => {
+    try {
+      const response = await fetch(`http://localhost/QLDiem/API/classes/read_one.php?id=${classId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        setClassItem(data.data);
+      } else {
+        console.error('API error:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching class:', error);
+    }
+  }, []);
+
+  // Bọc fetchAssignment trong useCallback
+  const fetchAssignment = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/teaching_assignments/read_one.php?id=${id}`);
       if (!response.ok) {
@@ -43,58 +93,11 @@ function TeachingAssignmentDetail() {
     } catch (error) {
       console.error('Error fetching assignment:', error);
     }
-  };
+  }, [id, fetchInstructor, fetchSubject, fetchClass]);
 
-  const fetchInstructor = async (instructorId) => {
-    try {
-      const response = await fetch(`http://localhost/QLDiem/API/instructors/read_one.php?id=${instructorId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.status === 'success') {
-        setInstructor(data.data);
-      } else {
-        console.error('API error:', data.message);
-      }
-    } catch (error) {
-      console.error('Error fetching instructor:', error);
-    }
-  };
-
-  const fetchSubject = async (subjectId) => {
-    try {
-      const response = await fetch(`http://localhost/QLDiem/API/subjects/read_one.php?id=${subjectId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.status === 'success') {
-        setSubject(data.data);
-      } else {
-        console.error('API error:', data.message);
-      }
-    } catch (error) {
-      console.error('Error fetching subject:', error);
-    }
-  };
-
-  const fetchClass = async (classId) => {
-    try {
-      const response = await fetch(`http://localhost/QLDiem/API/classes/read_one.php?id=${classId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.status === 'success') {
-        setClassItem(data.data);
-      } else {
-        console.error('API error:', data.message);
-      }
-    } catch (error) {
-      console.error('Error fetching class:', error);
-    }
-  };
+  useEffect(() => {
+    fetchAssignment();
+  }, [fetchAssignment]); // Thêm fetchAssignment vào dependency array
 
   if (!assignment || !instructor || !subject || !classItem) {
     return <Typography>Loading...</Typography>;
@@ -164,4 +167,4 @@ function TeachingAssignmentDetail() {
   );
 }
 
-export default TeachingAssignmentDetail; 
+export default TeachingAssignmentDetail;

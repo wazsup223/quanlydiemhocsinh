@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -19,12 +19,8 @@ function InstructorDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchInstructor();
-    fetchTeachingAssignments();
-  }, [id]);
-
-  const fetchInstructor = async () => {
+  // Bọc fetchInstructor trong useCallback
+  const fetchInstructor = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/instructors/read_one.php?id=${id}`);
       if (!response.ok) {
@@ -35,9 +31,10 @@ function InstructorDetail() {
     } catch (error) {
       console.error('Error fetching instructor:', error);
     }
-  };
+  }, [id]);
 
-  const fetchTeachingAssignments = async () => {
+  // Bọc fetchTeachingAssignments trong useCallback
+  const fetchTeachingAssignments = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/teaching_assignments/read_by_instructor.php`, {
         method: 'POST',
@@ -58,7 +55,12 @@ function InstructorDetail() {
     } catch (error) {
       console.error('Error fetching teaching assignments:', error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchInstructor();
+    fetchTeachingAssignments();
+  }, [fetchInstructor, fetchTeachingAssignments]); // Thêm fetchInstructor và fetchTeachingAssignments vào dependency array
 
   if (!instructor) {
     return <Typography>Loading...</Typography>;
@@ -140,4 +142,4 @@ function InstructorDetail() {
   );
 }
 
-export default InstructorDetail; 
+export default InstructorDetail;

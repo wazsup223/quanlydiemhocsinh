@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -21,11 +20,8 @@ const TeachingAssignmentFilterBySemester = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAssignments();
-  }, [semester, academicYear]);
-
-  const fetchAssignments = async () => {
+  // Bọc fetchAssignments trong useCallback
+  const fetchAssignments = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/teaching_assignments/read_by_semester.php?semester=${semester}&academic_year=${academicYear}`);
       if (!response.ok) {
@@ -42,7 +38,11 @@ const TeachingAssignmentFilterBySemester = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [semester, academicYear]);
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [fetchAssignments]); // Thêm fetchAssignments vào dependency array
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this assignment?')) {
@@ -125,4 +125,4 @@ const TeachingAssignmentFilterBySemester = () => {
   );
 };
 
-export default TeachingAssignmentFilterBySemester; 
+export default TeachingAssignmentFilterBySemester;

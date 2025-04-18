@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -21,12 +21,8 @@ function CourseRegistrationFilterBySubject() {
   const [subject, setSubject] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchRegistrations();
-    fetchSubject();
-  }, [subjectId]);
-
-  const fetchRegistrations = async () => {
+  // Bọc fetchRegistrations trong useCallback
+  const fetchRegistrations = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/course_registrations/read_by_subject.php?subject_id=${subjectId}`);
       if (!response.ok) {
@@ -41,9 +37,10 @@ function CourseRegistrationFilterBySubject() {
     } catch (error) {
       console.error('Error fetching registrations:', error);
     }
-  };
+  }, [subjectId]);
 
-  const fetchSubject = async () => {
+  // Bọc fetchSubject trong useCallback
+  const fetchSubject = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/subjects/read_one.php?id=${subjectId}`);
       if (!response.ok) {
@@ -58,7 +55,12 @@ function CourseRegistrationFilterBySubject() {
     } catch (error) {
       console.error('Error fetching subject:', error);
     }
-  };
+  }, [subjectId]);
+
+  useEffect(() => {
+    fetchRegistrations();
+    fetchSubject();
+  }, [fetchRegistrations, fetchSubject]); // Thêm fetchRegistrations và fetchSubject vào dependency array
 
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa đăng ký này?')) {
@@ -160,4 +162,4 @@ function CourseRegistrationFilterBySubject() {
   );
 }
 
-export default CourseRegistrationFilterBySubject; 
+export default CourseRegistrationFilterBySubject;
