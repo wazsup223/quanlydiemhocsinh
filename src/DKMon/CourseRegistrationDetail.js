@@ -8,7 +8,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -21,8 +20,10 @@ function CourseRegistrationDetail() {
   useEffect(() => {
     fetchRegistration();
   }, [id]);
-
-  const fetchRegistration = async () => {
+  useEffect(() => {
+    fetchRegistration();
+  }, [fetchRegistration]);
+  async function fetchRegistration() {
     try {
       const response = await fetch(`http://localhost/QLDiem/API/course_registrations/read_one.php?id=${id}`);
       if (!response.ok) {
@@ -37,7 +38,7 @@ function CourseRegistrationDetail() {
     } catch (error) {
       console.error('Error fetching registration:', error);
     }
-  };
+  }
 
   if (!registration) {
     return <Typography>Loading...</Typography>;
