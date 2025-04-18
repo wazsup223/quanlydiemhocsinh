@@ -14,7 +14,6 @@ import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
-import EditTeachingAssignment from './EditTeachingAssignment';
 
 function TeachingAssignmentList() {
   // --- 1. State ---
@@ -24,8 +23,6 @@ function TeachingAssignmentList() {
   const [selectedInstructor, setSelectedInstructor] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [loading, setLoading] = useState(true);
-  const [editOpen, setEditOpen] = useState(false);
-  const [editData, setEditData] = useState(null);
 
   const navigate = useNavigate();
 
@@ -97,7 +94,7 @@ function TeachingAssignmentList() {
   const columns = [
     { field: 'subject_id', headerName: 'Mã môn học', width: 130 },
     { field: 'subject_name', headerName: 'Tên môn học', width: 200 },
-    { field: 'instructor_id', headerName: 'Mã giảng viên', width: 130 },
+    { field: 'inroses', headerName: 'Mã giảng viên', width: 130 },
     { field: 'instructor_name', headerName: 'Tên giảng viên', width: 200 },
     { field: 'created_at', headerName: 'Ngày tạo', width: 160 },
     { field: 'updated_at', headerName: 'Ngày cập nhật', width: 160 },
@@ -174,14 +171,6 @@ function TeachingAssignmentList() {
         rowsPerPageOptions={[5, 10]}
         loading={loading}
         getRowId={(row) => `${row.subject_id}_${row.instructor_id}`}
-      />
-
-      {/* Dialog sửa */}
-      <EditTeachingAssignment
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        data={editData}
-        onUpdate={fetchAssignments}
       />
     </Box>
   );
