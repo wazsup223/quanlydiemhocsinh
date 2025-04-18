@@ -2,9 +2,15 @@
 // Các header cần thiết
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-// Bao gồm các file cơ sở dữ liệu và đối tượng
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/InstructorAssignment.php';
 
 // Khởi tạo cơ sở dữ liệu và đối tượng phân công giảng dạy
@@ -18,7 +24,7 @@ $stmt = $instructor_assignment->read();
 $num = $stmt->rowCount();
 
 // Kiểm tra nếu tìm thấy nhiều hơn 0 bản ghi
-if($num > 0) {
+if ($num > 0) {
     // Mảng phân công giảng dạy
     $instructor_assignments_arr = array();
     $instructor_assignments_arr["records"] = array();
@@ -57,4 +63,4 @@ if($num > 0) {
         "message" => "No instructor assignments found."
     ));
 }
-?> 
+?>

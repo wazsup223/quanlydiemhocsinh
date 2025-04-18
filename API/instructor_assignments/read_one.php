@@ -1,12 +1,16 @@
 <?php
 // Headers
-header('Access-Control-Allow-Origin: *');
-header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods,Authorization,X-Requested-With');
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-// Bao gồm các file cần thiết
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/InstructorAssignment.php';
 
 // Khởi tạo kết nối cơ sở dữ liệu
@@ -20,7 +24,7 @@ $assignment = new InstructorAssignment($db);
 $data = json_decode(file_get_contents("php://input"));
 
 // Kiểm tra dữ liệu đầu vào
-if(!empty($data->subject_id) && !empty($data->instructor_id)) {
+if (!empty($data->subject_id) && !empty($data->instructor_id)) {
     $assignment->subject_id = $data->subject_id;
     $assignment->instructor_id = $data->instructor_id;
 
@@ -37,7 +41,7 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
     $stmt->execute();
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if(!$row) {
+    if (!$row) {
         http_response_code(404);
         echo json_encode([
             "status" => "error",
@@ -68,4 +72,4 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
         "data" => null
     ]);
 }
-?> 
+?>

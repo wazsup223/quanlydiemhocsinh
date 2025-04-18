@@ -25,6 +25,7 @@ class Grade
         $query = "SELECT g.*, 
                   s.first_name as student_first_name, 
                   s.last_name as student_last_name,
+               CONCAT( s.first_name,' ',s.last_name) AS full_name,
                   sub.name as subject_name,
                   i.first_name as instructor_first_name,
                   i.last_name as instructor_last_name

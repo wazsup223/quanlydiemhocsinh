@@ -1,11 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: DELETE");
-header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Methods: DELETE, POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once '../../config/database.php';
+// Trả về 200 OK cho preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/subjects.php';
 
 $database = new Database();
@@ -21,10 +25,10 @@ $response = array(
     "data" => null
 );
 
-if(!empty($data->id)) {
+if (!empty($data->id)) {
     $subject->id = $data->id;
 
-    if($subject->delete()) {
+    if ($subject->delete()) {
         $response["message"] = "Xóa môn học thành công";
         $response["data"] = array("id" => $subject->id);
         http_response_code(200);
@@ -40,4 +44,4 @@ if(!empty($data->id)) {
 }
 
 echo json_encode($response);
-?> 
+?>

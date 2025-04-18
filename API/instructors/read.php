@@ -1,8 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/Instructor.php';
 
 $database = new Database();
@@ -19,9 +26,14 @@ $response = array(
     "data" => array()
 );
 
-if($num > 0) {
+if ($num > 0) {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         extract($row);
+
+        // Tách chuỗi subjects thành mảng nếu có
+        $subjects_array = isset($subjects) && !empty($subjects)
+            ? explode(',', $subjects)
+            : [];
 
         $instructor_item = array(
             "id" => $id,
@@ -35,11 +47,13 @@ if($num > 0) {
             "degree" => $degree,
             "department_id" => $department_id,
             "department_name" => $department_name,
+            "instructor_name" => $first_name . ' ' . $last_name,
+            "subjects" => $subjects_array,
             "created_at" => $created_at,
             "updated_at" => $updated_at
         );
 
-        array_push($response["data"], $instructor_item);
+        $response["data"][] = $instructor_item;
     }
 
     $response["message"] = "Lấy danh sách giảng viên thành công";
@@ -51,4 +65,3 @@ if($num > 0) {
 }
 
 echo json_encode($response);
-?> 

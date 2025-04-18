@@ -1,11 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: PUT");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/student_reg.php';
 
 $database = new Database();
@@ -23,12 +27,18 @@ $response = array(
 
 if (
     !empty($data->id) && !empty($data->subject_id) && !empty($data->student_id) &&
+    //!empty($data->$credits) &&
+    // !empty($data->semester) && !empty($data->academic_year) &&
     !empty($data->created_at) && !empty($data->updated_at)
 ) {
 
     $student_reg->id = $data->id;
     $student_reg->subject_id = $data->subject_id;
     $student_reg->student_id = $data->student_id;
+    // $student_reg->credits = $data->credits;
+    // $student_reg->semester = $data->semester;
+
+    // $student_reg->academic_year = $data->academic_year;
     $student_reg->created_at = $data->created_at;
     $student_reg->updated_at = $data->updated_at;
 
@@ -38,6 +48,10 @@ if (
             "id" => $student_reg->id,
             "subject_id" => $student_reg->subject_id,
             "student_id" => $student_reg->student_id,
+            //"credits" => $student_reg->credits,
+            // "semester" => $student_reg->semester,
+
+            // "academic_year" => $student_reg->academic_year,
             "created_at" => $student_reg->created_at,
             "updated_at" => $student_reg->updated_at
         );

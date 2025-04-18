@@ -1,11 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/departments.php';
 
 $database = new Database();
@@ -13,6 +17,7 @@ $db = $database->getConnection();
 
 $departments = new Departments($db);
 
+// Lấy dữ liệu từ body request
 $data = json_decode(file_get_contents("php://input"));
 
 $response = array(
@@ -21,38 +26,41 @@ $response = array(
     "data" => null
 );
 
+// Kiểm tra xem các trường cần thiết có tồn tại không
 if (
-    !empty($data->id) && !empty($data->symbol) && !empty($data->name) &&
-    !empty($data->created_at) && !empty($data->updated_at)
+    !empty($data->symbol) && !empty($data->name)
 ) {
-
-    $departments->id = $data->id;
+    // Không cần gán id, created_at, và updated_at vì chúng sẽ được tự động xử lý bởi cơ sở dữ liệu
     $departments->symbol = $data->symbol;
     $departments->name = $data->name;
     $departments->created_at = $data->created_at;
-    $departments->updated_at = $data->updated_at;
 
-
+    // Thêm khoa vào cơ sở dữ liệu
     if ($departments->create()) {
+
+
+        // Trả về thông tin khoa đã được thêm
         $response["message"] = "Thêm khoa thành công";
         $response["data"] = array(
-            "id" => $departments->id,
+            "id" => $departments->id, // id mới tạo
             "symbol" => $departments->symbol,
             "name" => $departments->name,
-            "created_at" => $departments->created_at,
-            "updated_at" => $departments->updated_at
+            "created_at" => date('Y-m-d H:i:s')
         );
         http_response_code(201);
     } else {
+        // Nếu không thể thêm khoa, trả về lỗi
         $response["status"] = "error";
         $response["message"] = "Không thể thêm khoa";
         http_response_code(503);
     }
 } else {
+    // Trường hợp dữ liệu không đầy đủ
     $response["status"] = "error";
     $response["message"] = "Dữ liệu không đầy đủ";
     http_response_code(400);
 }
 
+// Trả về phản hồi dạng JSON
 echo json_encode($response);
 ?>

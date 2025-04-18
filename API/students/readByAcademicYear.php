@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once '../../config/database.php';
+include_once '../../config.php';
 include_once '../../models/students.php';
 
 $database = new Database();
@@ -47,7 +47,13 @@ if (!empty($academic_year)) {
                 "birth_day" => $birth_day,
                 "phone" => $phone,
                 "gender" => $gender,
-                "academic_year" => $academic_year
+                "academic_year" => $academic_year,
+                "class_name" => $class_name,          // <-- từ bảng c
+                "department_name" => $department_name // <-- từ bảng d
+
+
+
+
 
             );
 

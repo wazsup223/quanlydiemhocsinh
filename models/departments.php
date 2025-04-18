@@ -33,52 +33,50 @@ class departments
         $sql = "SELECT * FROM departments WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(":id", $this->id, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-        if ($row) {
-            $this->symbol = $row['symbol'];
-            $this->name = $row['name'];
-            $this->created_at = $row['created_at'];
-            $this->updated_at = $row['updated_at'];
-            return true;
+        if ($stmt->execute()) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $this->symbol = $row['symbol'];
+                $this->name = $row['name'];
+                $this->created_at = $row['created_at'];
+                $this->updated_at = $row['updated_at'];
+                return true;
+            }
         }
         return false;
     }
     // Thêm khoa
     public function create()
     {
+        // Cập nhật câu truy vấn để không có trường id
         $query = "INSERT INTO " . $this->table_name . "
                 SET
-                    id = :id,
                     symbol = :symbol,
                     name = :name,
-                    created_at= :created_at,
-                    updated_at= :updated_at";
-
+                    created_at = :created_at,
+                    updated_at = :updated_at";
 
         $stmt = $this->conn->prepare($query);
 
         // Làm sạch dữ liệu
-        $this->id = htmlspecialchars(strip_tags($this->id));
         $this->symbol = htmlspecialchars(strip_tags($this->symbol));
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->created_at = htmlspecialchars(strip_tags($this->created_at));
         $this->updated_at = htmlspecialchars(strip_tags($this->updated_at));
 
         // Bind các giá trị
-        $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":symbol", $this->symbol);
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":created_at", $this->created_at);
         $stmt->bindParam(":updated_at", $this->updated_at);
+
+        // Thực thi truy vấn
         if ($stmt->execute()) {
             return true;
         }
         return false;
     }
-
     //update
     public function update()
     {

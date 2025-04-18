@@ -2,12 +2,15 @@
 // Các header cần thiết
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-// Bao gồm các file cơ sở dữ liệu và đối tượng
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/InstructorAssignment.php';
 
 // Lấy kết nối cơ sở dữ liệu
@@ -21,13 +24,13 @@ $instructor_assignment = new InstructorAssignment($db);
 $data = json_decode(file_get_contents("php://input"));
 
 // Kiểm tra dữ liệu không được trống
-if(!empty($data->subject_id)) {
+if (!empty($data->subject_id)) {
     // Truy vấn phân công giảng dạy
     $stmt = $instructor_assignment->readBySubject($data->subject_id);
     $num = $stmt->rowCount();
 
     // Kiểm tra nếu tìm thấy nhiều hơn 0 bản ghi
-    if($num > 0) {
+    if ($num > 0) {
         // Mảng phân công giảng dạy
         $instructor_assignments_arr = array();
         $instructor_assignments_arr["records"] = array();
@@ -76,4 +79,4 @@ if(!empty($data->subject_id)) {
         "message" => "Vui lòng cung cấp ID môn học"
     ));
 }
-?> 
+?>

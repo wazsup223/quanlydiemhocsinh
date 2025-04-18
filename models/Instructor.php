@@ -25,16 +25,33 @@ class Instructor
     }
 
     // Lấy tất cả giảng viên
-    public function read()
+    /*public function read()
     {
         $query = "SELECT i.*, d.name as department_name 
                  FROM " . $this->table_name . " i
                  LEFT JOIN departments d ON i.department_id = d.id
+                 
                  ORDER BY i.id";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
+    }*/
+    // new 16/4
+    public function read()
+    {
+        $query = "SELECT i.*, d.name as department_name,
+                     GROUP_CONCAT(ta.subject_id) as subjects
+              FROM " . $this->table_name . " i
+              LEFT JOIN departments d ON i.department_id = d.id
+              LEFT JOIN instructor_assignments ta ON i.id = ta.instructor_id
+              GROUP BY i.id
+              ORDER BY i.id";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
     }
+
 
     // Lấy giảng viên theo mã
     public function readOne()
@@ -184,6 +201,17 @@ class Instructor
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $department_id);
         $stmt->execute();
+        return $stmt;
+    }
+
+    /// lấy cho detail department
+    public function readByDepartmentdetail($department_id)
+    {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE department_id = :department_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":department_id", $department_id);
+        $stmt->execute();
+
         return $stmt;
     }
 }

@@ -1,11 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/Instructor.php';
 
 $database = new Database();
@@ -21,11 +25,13 @@ $response = array(
     "data" => null
 );
 
-if(!empty($data->id) && !empty($data->first_name) && !empty($data->last_name) && 
-   !empty($data->email) && !empty($data->address) && !empty($data->birth_day) && 
-   !empty($data->phone) && isset($data->gender) && !empty($data->degree) && 
-   !empty($data->department_id)) {
-    
+if (
+    !empty($data->id) && !empty($data->first_name) && !empty($data->last_name) &&
+    !empty($data->email) && !empty($data->address) && !empty($data->birth_day) &&
+    !empty($data->phone) && isset($data->gender) && !empty($data->degree) &&
+    !empty($data->department_id)
+) {
+
     $instructor->id = $data->id;
     $instructor->first_name = $data->first_name;
     $instructor->last_name = $data->last_name;
@@ -37,7 +43,7 @@ if(!empty($data->id) && !empty($data->first_name) && !empty($data->last_name) &&
     $instructor->degree = $data->degree;
     $instructor->department_id = $data->department_id;
 
-    if($instructor->create()) {
+    if ($instructor->create()) {
         $response["message"] = "Thêm giảng viên thành công";
         $response["data"] = array(
             "id" => $instructor->id,
@@ -64,4 +70,4 @@ if(!empty($data->id) && !empty($data->first_name) && !empty($data->last_name) &&
 }
 
 echo json_encode($response);
-?> 
+?>

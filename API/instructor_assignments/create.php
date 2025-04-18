@@ -1,11 +1,16 @@
 <?php
 // Headers
-header('Access-Control-Allow-Origin: *');
-header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods,Authorization,X-Requested-With');
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/InstructorAssignment.php';
 include_once '../../models/Instructor.php';
 
@@ -20,12 +25,12 @@ $assignment = new InstructorAssignment($db);
 $data = json_decode(file_get_contents("php://input"));
 
 // Kiểm tra dữ liệu đầu vào
-if(!empty($data->subject_id) && !empty($data->instructor_id)) {
-    
+if (!empty($data->subject_id) && !empty($data->instructor_id)) {
+
     // Kiểm tra giảng viên tồn tại
     $instructor = new Instructor($db);
     $instructor->id = $data->instructor_id;
-    if(!$instructor->readOne()) {
+    if (!$instructor->readOne()) {
         http_response_code(400);
         echo json_encode([
             "status" => "error",
@@ -40,8 +45,8 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
     $stmt = $db->prepare($query);
     $stmt->bindParam(1, $data->subject_id);
     $stmt->execute();
-    
-    if($stmt->rowCount() == 0) {
+
+    if ($stmt->rowCount() == 0) {
         http_response_code(400);
         echo json_encode([
             "status" => "error",
@@ -61,7 +66,7 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
     $stmt->execute();
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if(!$row) {
+    if (!$row) {
         http_response_code(400);
         echo json_encode(array(
             "message" => "Không tìm thấy giảng viên hoặc môn học.",
@@ -70,7 +75,7 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
         exit();
     }
 
-    if($row['instructor_dept'] != $row['subject_dept']) {
+    if ($row['instructor_dept'] != $row['subject_dept']) {
         http_response_code(400);
         echo json_encode(array(
             "message" => "Giảng viên và môn học phải thuộc cùng một khoa.",
@@ -85,8 +90,8 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
     $stmt->bindParam(1, $data->subject_id);
     $stmt->bindParam(2, $data->instructor_id);
     $stmt->execute();
-    
-    if($stmt->rowCount() > 0) {
+
+    if ($stmt->rowCount() > 0) {
         http_response_code(200);
         echo json_encode([
             "status" => "success",
@@ -101,7 +106,7 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
     $assignment->instructor_id = $data->instructor_id;
 
     // Tạo phân công mới
-    if($assignment->create()) {
+    if ($assignment->create()) {
         // Lấy thông tin chi tiết về phân công vừa tạo
         $query = "SELECT ia.*, s.name as subject_name, 
                   CONCAT(i.first_name, ' ', i.last_name) as instructor_name
@@ -144,4 +149,4 @@ if(!empty($data->subject_id) && !empty($data->instructor_id)) {
         "data" => null
     ]);
 }
-?> 
+?>

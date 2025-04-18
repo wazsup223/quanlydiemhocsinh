@@ -120,29 +120,18 @@ class InstructorAssignment
     }
 
     // Xóa phân công giảng dạy
-    public function delete()
+    public function delete($subject_id, $instructor_id)
     {
-        // Kiểm tra xem phân công có tồn tại không
-        if (!$this->readOne()) {
-            return false;
-        }
+        $query = "DELETE FROM instructor_assignments WHERE subject_id = :subject_id AND instructor_id = :instructor_id";
 
-        // Truy vấn xóa
-        $query = "DELETE FROM " . $this->table_name . " 
-                WHERE subject_id = ? AND instructor_id = ?";
-
-        // Chuẩn bị truy vấn
+        // Chuẩn bị câu lệnh SQL
         $stmt = $this->conn->prepare($query);
 
-        // Làm sạch dữ liệu
-        $this->subject_id = htmlspecialchars(strip_tags($this->subject_id));
-        $this->instructor_id = htmlspecialchars(strip_tags($this->instructor_id));
+        // Gắn giá trị vào tham số
+        $stmt->bindParam(':subject_id', $subject_id);
+        $stmt->bindParam(':instructor_id', $instructor_id);
 
-        // Gán id của bản ghi cần xóa
-        $stmt->bindParam(1, $this->subject_id);
-        $stmt->bindParam(2, $this->instructor_id);
-
-        // Thực thi truy vấn
+        // Thực thi câu lệnh và trả về kết quả
         if ($stmt->execute()) {
             return true;
         }
@@ -208,5 +197,48 @@ class InstructorAssignment
         }
         return false;
     }
+    // Cập nhật phân công giảng dạy
+    public function update($old_subject_id, $old_instructor_id)
+    {
+        // Kiểm tra xem bản ghi cũ có tồn tại không
+        $queryCheck = "SELECT * FROM " . $this->table_name . " 
+                   WHERE subject_id = ? AND instructor_id = ?";
+        $stmtCheck = $this->conn->prepare($queryCheck);
+        $stmtCheck->bindParam(1, $old_subject_id);
+        $stmtCheck->bindParam(2, $old_instructor_id);
+        $stmtCheck->execute();
+
+        if ($stmtCheck->rowCount() == 0) {
+            return false; // Bản ghi không tồn tại
+        }
+
+        // Truy vấn cập nhật bản ghi
+        $query = "UPDATE " . $this->table_name . "
+              SET subject_id = :subject_id, instructor_id = :instructor_id
+              WHERE subject_id = :old_subject_id AND instructor_id = :old_instructor_id";
+
+        // Chuẩn bị truy vấn
+        $stmt = $this->conn->prepare($query);
+
+        // Làm sạch dữ liệu
+        $this->subject_id = htmlspecialchars(strip_tags($this->subject_id));
+        $this->instructor_id = htmlspecialchars(strip_tags($this->instructor_id));
+        $old_subject_id = htmlspecialchars(strip_tags($old_subject_id));
+        $old_instructor_id = htmlspecialchars(strip_tags($old_instructor_id));
+
+        // Gán giá trị
+        $stmt->bindParam(':subject_id', $this->subject_id);
+        $stmt->bindParam(':instructor_id', $this->instructor_id);
+        $stmt->bindParam(':old_subject_id', $old_subject_id);
+        $stmt->bindParam(':old_instructor_id', $old_instructor_id);
+
+        // Thực thi truy vấn
+        if ($stmt->execute()) {
+            return true;
+        }
+
+        return false;
+    }
+
 }
 ?>

@@ -15,42 +15,45 @@ class Student_reg
     // Lấy tất cả sinh viên đăng ký
     public function read()
     {
-
-        $query = "SELECT e.*, s.first_name, s.last_name, sub.name AS subject_name
-          FROM student_registrations e
-          LEFT JOIN students s ON e.student_id = s.id
-          LEFT JOIN subjects sub ON e.subject_id = sub.id
-          ORDER BY e.id";
+        $query = "SELECT 
+                e.*, 
+                s.first_name, 
+                s.last_name, 
+               CONCAT( s.first_name,' ',s.last_name) AS full_name,
+                s.academic_year, 
+                sub.name AS subject_name, 
+                sub.semester,
+                sub.credits
+              FROM student_registrations e
+              LEFT JOIN students s ON e.student_id = s.id
+              LEFT JOIN subjects sub ON e.subject_id = sub.id
+              ORDER BY e.id";
 
         $stmt = $this->conn->prepare($query);
-
         $stmt->execute();
 
         return $stmt;
     }
+
+
     // create
     public function create()
     {
         $query = "INSERT INTO " . $this->table_name . "
                 SET
-                    id = :id,
+                 
                     subject_id = :subject_id,
                     student_id = :student_id,
+                    
                     created_at = :created_at,
                     updated_at = :updated_at";
 
 
-        /*$query = "INSERT INTO " . $this->table_name . " (
-            id, first_name, last_name, email, address, birth_day, phone, gender, 
-            academic_year, class_id, department_id, created_at, updated_at
-          ) VALUES (
-            :id, :first_name, :last_name, :email, :address, :birth_day, :phone, :gender, 
-            :academic_year, :class_id, :department_id, :created_at, :updated_at
-          )";*/
+
         $stmt = $this->conn->prepare($query);
 
         // Làm sạch dữ liệu
-        $this->id = htmlspecialchars(strip_tags($this->id));
+
         $this->subject_id = htmlspecialchars(strip_tags($this->subject_id));
         $this->student_id = htmlspecialchars(strip_tags($this->student_id));
         $this->created_at = htmlspecialchars(strip_tags($this->created_at));
@@ -60,7 +63,7 @@ class Student_reg
 
 
         // Bind các giá trị
-        $stmt->bindParam(":id", $this->id);
+
         $stmt->bindParam(":subject_id", $this->subject_id);
         $stmt->bindParam(":student_id", $this->student_id);
         $stmt->bindParam(":created_at", $this->created_at);
@@ -77,6 +80,7 @@ class Student_reg
                 SET
                     subject_id = :subject_id,
                     student_id = :student_id,
+                    
                     created_at = :created_at,
                     updated_at = :updated_at
                 WHERE id = :id";

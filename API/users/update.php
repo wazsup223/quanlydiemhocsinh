@@ -1,11 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: PUT");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/users.php';
 
 $database = new Database();
@@ -21,10 +25,11 @@ $response = array(
     "data" => null
 );
 
-if(!empty($data->id) && !empty($data->first_name) && !empty($data->last_name) && 
-   !empty($data->username) && !empty($data->password) && isset($data->created_at) && !empty($data->updated_at) 
-   ) {
-    
+if (
+    !empty($data->id) && !empty($data->first_name) && !empty($data->last_name) &&
+    !empty($data->username) && !empty($data->password) && isset($data->created_at) && !empty($data->updated_at)
+) {
+
     $users->id = $data->id;
     $users->first_name = $data->first_name;
     $users->last_name = $data->last_name;
@@ -32,10 +37,10 @@ if(!empty($data->id) && !empty($data->first_name) && !empty($data->last_name) &&
     $users->password = $data->password;
     $users->created_at = $data->created_at;
     $users->updated_at = $data->updated_at;
-    
-    
 
-    if($users->update()) {
+
+
+    if ($users->update()) {
         $response["message"] = "Cập nhật thông tin người dùng thành công";
         $response["data"] = array(
             "id" => $users->id,
@@ -45,8 +50,8 @@ if(!empty($data->id) && !empty($data->first_name) && !empty($data->last_name) &&
             "password" => $users->password,
             "created_at" => $users->created_at,
             "updated_at" => $users->updated_at
-            
-           
+
+
         );
         http_response_code(200);
     } else {
@@ -61,4 +66,4 @@ if(!empty($data->id) && !empty($data->first_name) && !empty($data->last_name) &&
 }
 
 echo json_encode($response);
-?> 
+?>

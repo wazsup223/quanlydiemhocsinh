@@ -1,8 +1,15 @@
 <?php
-header("Access-Control-Allow-Origin: *"); // Hoặc thay * bằng http://localhost:3000 nếu bạn muốn chỉ cho phép truy cập từ domain này
+header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
+
+// Xử lý request OPTIONS (tiền xử lý của trình duyệt)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 
 include_once '../../config.php';
 include_once '../../models/classes.php';
@@ -30,7 +37,9 @@ if ($num > 0) {
             "name" => $name,
             "max_students" => $max_students,
             "department_id" => $department_id,
+            "department_name" => $department_name,
             "host_instructor_id" => $host_instructor_id,
+            "instructor_name" => $instructor_name,
             "created_at" => $created_at,
             "updated_at" => $updated_at
         );

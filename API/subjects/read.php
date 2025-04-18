@@ -1,8 +1,14 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once '../../config/database.php';
+// Trả về 200 OK cho preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+include_once '../../config.php';
 include_once '../../models/subjects.php';
 
 $database = new Database();
@@ -19,7 +25,7 @@ $response = array(
     "data" => array()
 );
 
-if($num > 0) {
+if ($num > 0) {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         extract($row);
 
@@ -27,10 +33,12 @@ if($num > 0) {
             "id" => $id,
             "name" => $name,
             "credits" => $credits,
+            "semester" => $semester,
             "process_percentage" => $process_percentage,
             "midterm_percentage" => $midterm_percentage,
             "final_percentage" => $final_percentage,
             "department_id" => $department_id,
+            "department_name" => $department_name,
             "created_at" => $created_at,
             "updated_at" => $updated_at
         );
@@ -47,4 +55,4 @@ if($num > 0) {
 }
 
 echo json_encode($response);
-?> 
+?>

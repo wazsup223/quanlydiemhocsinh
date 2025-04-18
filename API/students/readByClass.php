@@ -1,11 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: *");
 
-include_once '../../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/students.php';
 
 $database = new Database();
@@ -37,7 +41,23 @@ if (!empty($class_id)) {
 
     if ($num > 0) {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $response["data"][] = $row; // Thêm dữ liệu vào mảng
+            extract($row);
+
+            $student_item = array(
+                "id" => $id,
+                "first_name" => $first_name,
+                "last_name" => $last_name,
+                "email" => $email,
+                "address" => $address,
+                "birth_day" => $birth_day,
+                "phone" => $phone,
+                "gender" => $gender,
+                "academic_year" => $academic_year,
+                "class_name" => $class_name,          // <-- từ bảng c
+                "department_name" => $department_name // <-- từ bảng d
+
+            );
+            array_push($response["data"], $student_item);
         }
 
         $response["message"] = "Lấy danh sách sinh viên theo lớp thành công";

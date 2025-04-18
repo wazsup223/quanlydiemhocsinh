@@ -1,11 +1,15 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: PUT");
-header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Methods: PUT, POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once '../../config/database.php';
+// Trả về 200 OK cho preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/subjects.php';
 
 $database = new Database();
@@ -21,23 +25,25 @@ $response = array(
     "data" => null
 );
 
-if(!empty($data->id) && !empty($data->name) && !empty($data->credits) && 
-   !empty($data->process_percentage) && !empty($data->midterm_percentage) && !empty($data->final_percentage) && 
-   !empty($data->department_id) && isset($data->created_at) && !empty($data->updated_at) 
-   ) {
-    
+if (
+    !empty($data->id) && !empty($data->name) && !empty($data->credits) && !empty($data->semester) &&
+    !empty($data->process_percentage) && !empty($data->midterm_percentage) && !empty($data->final_percentage) &&
+    !empty($data->department_id) && isset($data->created_at) && !empty($data->updated_at)
+) {
+
     $subject->id = $data->id;
     $subject->name = $data->name;
     $subject->credits = $data->credits;
+    $subject->semester = $data->semester;
     $subject->process_percentage = $data->process_percentage;
     $subject->midterm_percentage = $data->midterm_percentage;
     $subject->final_percentage = $data->final_percentage;
     $subject->department_id = $data->department_id;
     $subject->created_at = $data->created_at;
     $subject->updated_at = $data->updated_at;
-    
 
-    if($subject->update()) {
+
+    if ($subject->update()) {
         $response["message"] = "Cập nhật thông tin giảng viên thành công";
         $response["data"] = array(
             "id" => $subject->id,
@@ -49,7 +55,7 @@ if(!empty($data->id) && !empty($data->name) && !empty($data->credits) &&
             "department_id" => $subject->department_id,
             "created_at" => $subject->created_at,
             "updated_at" => $subject->updated_at,
-           
+
         );
         http_response_code(200);
     } else {
@@ -64,4 +70,4 @@ if(!empty($data->id) && !empty($data->name) && !empty($data->credits) &&
 }
 
 echo json_encode($response);
-?> 
+?>

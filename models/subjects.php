@@ -6,6 +6,7 @@ class Subject
     public $id;
     public $name;
     public $credits;
+    public $semester;
     public $process_percentage;
     public $midterm_percentage;
     public $final_percentage;
@@ -20,8 +21,9 @@ class Subject
     public function read()
     {
 
-        $query = "SELECT s.*
+        $query = "SELECT s.*, d.name as department_name
               FROM " . $this->table_name . " s
+              LEFT JOIN departments d ON s.department_id = d.id
               ORDER BY s.id
              ";
 
@@ -31,6 +33,30 @@ class Subject
 
         return $stmt;
     }
+    public function readOne()
+    {
+        $sql = "SELECT * FROM subjects WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(":id", $this->id, PDO::PARAM_STR); // Dùng PARAM_STR nếu ID là chuỗi
+
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $this->name = $row['name'];
+            $this->credits = $row['credits'];
+            $this->semester = $row['semester'];
+            $this->process_percentage = $row['process_percentage'];
+            $this->midterm_percentage = $row['midterm_percentage'];
+            $this->final_percentage = $row['final_percentage'];
+            $this->department_id = $row['department_id'];
+            $this->created_at = $row['created_at'];
+            $this->updated_at = $row['updated_at'];
+
+            return true;
+        }
+        return false;
+    }
     public function create()
     {
         $query = "INSERT INTO " . $this->table_name . "
@@ -38,6 +64,7 @@ class Subject
                     id = :id,
                     name = :name,
                     credits = :credits,
+                    semester =:semester,
                     process_percentage = :process_percentage,
                     midterm_percentage = :midterm_percentage,
                     final_percentage = :final_percentage,
@@ -51,19 +78,21 @@ class Subject
         $this->id = htmlspecialchars(strip_tags($this->id));
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->credits = htmlspecialchars(strip_tags($this->credits));
+        $this->semester = htmlspecialchars(strip_tags($this->semester));
         $this->process_percentage = htmlspecialchars(strip_tags($this->process_percentage));
         $this->midterm_percentage = htmlspecialchars(strip_tags($this->midterm_percentage));
         $this->final_percentage = htmlspecialchars(strip_tags($this->final_percentage));
         $this->department_id = htmlspecialchars(strip_tags($this->department_id));
         $this->created_at = htmlspecialchars(strip_tags($this->created_at));
         $this->updated_at = htmlspecialchars(strip_tags($this->updated_at));
-        
-        
+
+
 
         // Bind các giá trị
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":credits", $this->credits);
+        $stmt->bindParam(":semester", $this->semester);
         $stmt->bindParam(":process_percentage", $this->process_percentage);
         $stmt->bindParam(":midterm_percentage", $this->midterm_percentage);
         $stmt->bindParam(":final_percentage", $this->final_percentage);
@@ -82,6 +111,7 @@ class Subject
                 SET
                     name = :name,
                     credits = :credits,
+                    semester =:semester,
                     process_percentage = :process_percentage,
                     midterm_percentage = :midterm_percentage,
                     final_percentage = :final_percentage,
@@ -97,6 +127,7 @@ class Subject
         $this->id = htmlspecialchars(strip_tags($this->id));
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->credits = htmlspecialchars(strip_tags($this->credits));
+        $this->semester = htmlspecialchars(strip_tags($this->semester));
         $this->process_percentage = htmlspecialchars(strip_tags($this->process_percentage));
         $this->midterm_percentage = htmlspecialchars(strip_tags($this->midterm_percentage));
         $this->final_percentage = htmlspecialchars(strip_tags($this->final_percentage));
@@ -108,6 +139,7 @@ class Subject
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":credits", $this->credits);
+        $stmt->bindParam(":semester", $this->semester);
         $stmt->bindParam(":process_percentage", $this->process_percentage);
         $stmt->bindParam(":midterm_percentage", $this->midterm_percentage);
         $stmt->bindParam(":final_percentage", $this->final_percentage);

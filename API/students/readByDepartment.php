@@ -1,11 +1,17 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once '../../config/database.php';
+// Xử lý preflight (OPTIONS)
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+include_once '../../config.php';
 include_once '../../models/students.php';
 
 $database = new Database();
@@ -38,6 +44,8 @@ if (!empty($data->department_id)) {
                 "birth_day" => $birth_day,
                 "phone" => $phone,
                 "gender" => $gender,
+                "academic_year" => $academic_year,
+                "class_name" => $class_name,
                 "department_id" => $department_id,
                 "department_name" => $department_name,
                 "created_at" => $created_at,
