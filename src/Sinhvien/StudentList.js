@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box, Button, Typography, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton,
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper,
+  Button,
+  IconButton,
+  Typography,
+  Box,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -12,15 +24,12 @@ import { API_ENDPOINTS } from '../config/api';
 function StudentList() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editStudent, setEditStudent] = useState(null);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [academicYears, setAcademicYears] = useState([]);
+  const [error, setError] = useState(null);
   const [classes, setClasses] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [selectedYear, setSelectedYear] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,10 +73,6 @@ function StudentList() {
       setStudents(studentsData.data || []);
       setClasses(classesData.data || []);
       setDepartments(departmentsData.data || []);
-
-      // Extract unique academic years
-      const years = [...new Set(studentsData.data?.map(student => student.academic_year) || [])];
-      setAcademicYears(years);
     } catch (err) {
       console.error('Lỗi khi tải dữ liệu ban đầu:', err);
       setError(err.message || 'Không thể tải dữ liệu');
@@ -161,7 +166,7 @@ function StudentList() {
             onChange={(e) => setSelectedYear(e.target.value)}
           >
             <MenuItem value="">Tất cả</MenuItem>
-            {academicYears.map(year => (
+            {[...new Set(students.map(student => student.academic_year))].map(year => (
               <MenuItem key={year} value={year}>{year}</MenuItem>
             ))}
           </Select>
