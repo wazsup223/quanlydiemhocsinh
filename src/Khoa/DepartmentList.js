@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {Box,Button,Typography,FormControl,InputLabel,Select,MenuItem, CircularProgress, Alert} from '@mui/material';
+import {Box,Button,Typography,FormControl,InputLabel,Select,MenuItem, CircularProgress} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Edit as EditIcon,
@@ -7,8 +7,7 @@ import {
   Info as InfoIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import EditDepartment from './EditDepartment'; // Form chỉnh sửa khoa
+import EditDepartment from './EditDepartment';
 import { API_ENDPOINTS } from '../config/api';
 
 function DepartmentList() {

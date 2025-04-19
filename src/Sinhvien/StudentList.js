@@ -3,7 +3,7 @@ import {
   Box, Button, Typography, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton,
   Dialog, DialogTitle, DialogContent, DialogActions,
-  FormControl, InputLabel, Select, MenuItem, CircularProgress
+  FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +17,7 @@ function StudentList() {
   const [academicYears, setAcademicYears] = useState([]);
   const [classes, setClasses] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [error, setError] = useState(null);
@@ -82,8 +82,8 @@ function StudentList() {
       setError(null);
 
       let url = API_ENDPOINTS.STUDENTS.LIST;
-      if (selectedAcademicYear) {
-        url = `${API_ENDPOINTS.STUDENTS.READ_BY_ACADEMIC_YEAR}?academic_year=${selectedAcademicYear}`;
+      if (selectedYear) {
+        url = `${API_ENDPOINTS.STUDENTS.READ_BY_ACADEMIC_YEAR}?academic_year=${selectedYear}`;
       } else if (selectedClass) {
         url = `${API_ENDPOINTS.STUDENTS.READ_BY_CLASS}?class_id=${selectedClass}`;
       } else if (selectedDepartment) {
@@ -157,8 +157,8 @@ function StudentList() {
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel>Niên khóa</InputLabel>
           <Select
-            value={selectedAcademicYear}
-            onChange={(e) => setSelectedAcademicYear(e.target.value)}
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
           >
             <MenuItem value="">Tất cả</MenuItem>
             {academicYears.map(year => (
