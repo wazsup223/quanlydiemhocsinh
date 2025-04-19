@@ -1,17 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, Box, Typography, CircularProgress
+  Button, TextField, FormControl, InputLabel, Select,
+  MenuItem, Box, Typography, CircularProgress
 } from '@mui/material';
 import { API_ENDPOINTS } from '../config/api';
 
-function AddDepartment({ open, onClose, onAdd }) {
+function AddClass({ open, onClose, onAdd }) {
   const [formData, setFormData] = useState({
-    department_id: '',
-    name: ''
+    class_id: '',
+    name: '',
+    department_id: ''
   });
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(API_ENDPOINTS.DEPARTMENTS.LIST, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể kết nối đến máy chủ');
+      }
+
+      const data = await response.json();
+      setDepartments(data.data || []);
+    } catch (err) {
+      console.error('Lỗi khi tải dữ liệu:', err);
+      setError(err.message || 'Không thể tải dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +60,7 @@ function AddDepartment({ open, onClose, onAdd }) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(API_ENDPOINTS.DEPARTMENTS.CREATE, {
+      const response = await fetch(API_ENDPOINTS.CLASSES.CREATE, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -37,7 +70,7 @@ function AddDepartment({ open, onClose, onAdd }) {
       });
 
       if (!response.ok) {
-        throw new Error('Không thể thêm khoa mới');
+        throw new Error('Không thể thêm lớp mới');
       }
 
       const data = await response.json();
@@ -45,11 +78,11 @@ function AddDepartment({ open, onClose, onAdd }) {
         onAdd();
         onClose();
       } else {
-        throw new Error(data.message || 'Thêm khoa thất bại');
+        throw new Error(data.message || 'Thêm lớp thất bại');
       }
     } catch (err) {
-      console.error('Lỗi khi thêm khoa:', err);
-      setError(err.message || 'Không thể thêm khoa');
+      console.error('Lỗi khi thêm lớp:', err);
+      setError(err.message || 'Không thể thêm lớp');
     } finally {
       setLoading(false);
     }
@@ -69,7 +102,7 @@ function AddDepartment({ open, onClose, onAdd }) {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Thêm khoa mới</DialogTitle>
+      <DialogTitle>Thêm lớp mới</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           {error && (
@@ -79,21 +112,34 @@ function AddDepartment({ open, onClose, onAdd }) {
           )}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
-              name="department_id"
-              label="Mã khoa"
-              value={formData.department_id}
+              name="class_id"
+              label="Mã lớp"
+              value={formData.class_id}
               onChange={handleChange}
               required
               fullWidth
             />
             <TextField
               name="name"
-              label="Tên khoa"
+              label="Tên lớp"
               value={formData.name}
               onChange={handleChange}
               required
               fullWidth
             />
+            <FormControl fullWidth>
+              <InputLabel>Khoa</InputLabel>
+              <Select
+                name="department_id"
+                value={formData.department_id}
+                onChange={handleChange}
+                required
+              >
+                {departments.map(dept => (
+                  <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
@@ -107,4 +153,4 @@ function AddDepartment({ open, onClose, onAdd }) {
   );
 }
 
-export default AddDepartment;
+export default AddClass; 

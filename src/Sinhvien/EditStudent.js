@@ -6,269 +6,276 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
+  FormControl,
+  InputLabel,
+  Select,
   MenuItem,
+  Box,
+  Typography,
+  CircularProgress
 } from '@mui/material';
-import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 
 function EditStudent({ open, onClose, student, onUpdate }) {
   const [formData, setFormData] = useState({
-    id: '',
+    student_id: '',
     first_name: '',
     last_name: '',
-    birth_day: '',
-    gender: '',
-    address: '',
     email: '',
+    address: '',
+    birth_day: '',
     phone: '',
-    class_id: '',
-    department_id: '',
+    gender: '0',
     academic_year: '',
+    class_id: '',
+    department_id: ''
   });
-
   const [classes, setClasses] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Hàm lấy thời gian hiện tại theo định dạng MySQL
-  const getCurrentDateTime = () => {
-    const now = new Date();
-    const pad = (n) => (n < 10 ? '0' + n : n);
-    return (
-      now.getFullYear() +
-      '-' +
-      pad(now.getMonth() + 1) +
-      '-' +
-      pad(now.getDate()) +
-      ' ' +
-      pad(now.getHours()) +
-      ':' +
-      pad(now.getMinutes()) +
-      ':' +
-      pad(now.getSeconds())
-    );
-  };
-
-  // Cập nhật form khi student thay đổi
   useEffect(() => {
     if (student) {
       setFormData({
-        ...student,
-        gender: String(student.gender),
+        student_id: student.student_id || '',
+        first_name: student.first_name || '',
+        last_name: student.last_name || '',
+        email: student.email || '',
+        address: student.address || '',
+        birth_day: student.birth_day || '',
+        phone: student.phone || '',
+        gender: student.gender || '0',
+        academic_year: student.academic_year || '',
+        class_id: student.class_id || '',
+        department_id: student.department_id || ''
       });
     }
-    fetchClasses();
-    fetchDepartments();
   }, [student]);
 
-  const fetchClasses = async () => {
-    try {
-      const response = await axios.get('http://localhost/QLDiem/API/classess/readClasses.php');
-      setClasses(response.data.data);
-    } catch (error) {
-      console.error('Error fetching classes:', error);
-    }
-  };
+  useEffect(() => {
+    fetchDropdownData();
+  }, []);
 
-  const fetchDepartments = async () => {
+  const fetchDropdownData = async () => {
     try {
-      const response = await axios.get('http://localhost/QLDiem/API/departments/readDepartments.php');
-      setDepartments(response.data.data);
-    } catch (error) {
-      console.error('Error fetching departments:', error);
+      setLoading(true);
+      setError(null);
+
+      const [classesRes, departmentsRes] = await Promise.all([
+        fetch(API_ENDPOINTS.CLASSES.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(API_ENDPOINTS.DEPARTMENTS.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        })
+      ]);
+
+      if (!classesRes.ok || !departmentsRes.ok) {
+        throw new Error('Không thể kết nối đến máy chủ');
+      }
+
+      const classesData = await classesRes.json();
+      const departmentsData = await departmentsRes.json();
+
+      setClasses(classesData.data || []);
+      setDepartments(departmentsData.data || []);
+    } catch (err) {
+      console.error('Lỗi khi tải dữ liệu:', err);
+      setError(err.message || 'Không thể tải dữ liệu');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
-  // Gửi dữ liệu cập nhật, có tùy chọn giữ form mở hoặc đóng lại
-  const handleSubmit = async (keepOpen = false) => {
-    const updatedData = {
-      ...formData,
-      gender: parseInt(formData.gender),
-      updated_at: getCurrentDateTime(),
-      created_at: student.created_at,
-    };
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.post(
-        'http://localhost/QLDiem/API/students/updateStudent.php',
-        JSON.stringify(updatedData),
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      setLoading(true);
+      setError(null);
 
-      if (response.data.message) {
-        alert('Cập nhật sinh viên thành công!');
+      const response = await fetch(API_ENDPOINTS.STUDENTS.UPDATE, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: student.id,
+          ...formData
+        })
+      });
 
-        // Cập nhật lại form để phản ánh dữ liệu mới (nhất là gender)
-        setFormData({
-          ...updatedData,
-          gender: String(updatedData.gender),
-        });
-
-        onUpdate(); // Gọi callback để reload danh sách nếu có
-
-        if (!keepOpen) {
-          onClose(); // Đóng dialog nếu không giữ lại
-        }
+      if (!response.ok) {
+        throw new Error('Không thể cập nhật thông tin sinh viên');
       }
-    } catch (error) {
-      console.error('Error updating student:', error);
-      alert('Có lỗi xảy ra khi cập nhật sinh viên!');
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        onUpdate();
+        onClose();
+      } else {
+        throw new Error(data.message || 'Cập nhật thất bại');
+      }
+    } catch (err) {
+      console.error('Lỗi khi cập nhật sinh viên:', err);
+      setError(err.message || 'Không thể cập nhật thông tin');
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogContent>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <CircularProgress />
+          </Box>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Sửa thông tin sinh viên</DialogTitle>
-      <DialogContent>
-        <form>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="ID" name="id" value={formData.id} disabled />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="Họ"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="Tên"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="Ngày sinh"
-                name="birth_day"
-                type="date"
-                value={formData.birth_day}
-                onChange={handleChange}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                select
-                label="Giới tính"
+      <DialogTitle>Cập nhật thông tin sinh viên</DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            <TextField
+              name="student_id"
+              label="Mã sinh viên"
+              value={formData.student_id}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="first_name"
+              label="Họ"
+              value={formData.first_name}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="last_name"
+              label="Tên"
+              value={formData.last_name}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="address"
+              label="Địa chỉ"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="birth_day"
+              label="Ngày sinh"
+              type="date"
+              value={formData.birth_day}
+              onChange={handleChange}
+              required
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              name="phone"
+              label="Số điện thoại"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <FormControl fullWidth>
+              <InputLabel>Giới tính</InputLabel>
+              <Select
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
+                required
               >
-                <MenuItem value="1">Nam</MenuItem>
-                <MenuItem value="0">Nữ</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="Số điện thoại"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Địa chỉ"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="Năm học"
-                name="academic_year"
-                value={formData.academic_year}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                select
-                label="Lớp"
+                <MenuItem value="0">Nam</MenuItem>
+                <MenuItem value="1">Nữ</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              name="academic_year"
+              label="Niên khóa"
+              value={formData.academic_year}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <FormControl fullWidth>
+              <InputLabel>Lớp</InputLabel>
+              <Select
                 name="class_id"
                 value={formData.class_id}
                 onChange={handleChange}
-              >
-                {classes.map((cls) => (
-                  <MenuItem key={cls.id} value={cls.id}>
-                    {cls.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
                 required
-                fullWidth
-                select
-                label="Khoa"
+              >
+                {classes.map(cls => (
+                  <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Khoa</InputLabel>
+              <Select
                 name="department_id"
                 value={formData.department_id}
                 onChange={handleChange}
+                required
               >
-                {departments.map((dept) => (
-                  <MenuItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </MenuItem>
+                {departments.map(dept => (
+                  <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
                 ))}
-              </TextField>
-            </Grid>
-          </Grid>
-        </form>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Hủy</Button>
-        <Button onClick={() => handleSubmit(true)} variant="contained" color="success">
-          Lưu và tiếp tục
-        </Button>
-        <Button onClick={() => handleSubmit(false)} variant="contained" color="primary">
-          Lưu và đóng
-        </Button>
-      </DialogActions>
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Hủy</Button>
+          <Button type="submit" variant="contained" color="primary">
+            Cập nhật
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

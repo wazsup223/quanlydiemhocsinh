@@ -1,26 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, Box, Typography, CircularProgress
+  Button, TextField, FormControl, InputLabel, Select,
+  MenuItem, Box, Typography, CircularProgress
 } from '@mui/material';
 import { API_ENDPOINTS } from '../config/api';
 
-function EditDepartment({ open, onClose, department, onUpdate }) {
+function EditClass({ open, onClose, classData, onUpdate }) {
   const [formData, setFormData] = useState({
-    department_id: '',
-    name: ''
+    class_id: '',
+    name: '',
+    department_id: ''
   });
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (department) {
+    if (classData) {
       setFormData({
-        department_id: department.department_id || '',
-        name: department.name || ''
+        class_id: classData.class_id || '',
+        name: classData.name || '',
+        department_id: classData.department_id || ''
       });
     }
-  }, [department]);
+  }, [classData]);
+
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(API_ENDPOINTS.DEPARTMENTS.LIST, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể kết nối đến máy chủ');
+      }
+
+      const data = await response.json();
+      setDepartments(data.data || []);
+    } catch (err) {
+      console.error('Lỗi khi tải dữ liệu:', err);
+      setError(err.message || 'Không thể tải dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,20 +70,20 @@ function EditDepartment({ open, onClose, department, onUpdate }) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(API_ENDPOINTS.DEPARTMENTS.UPDATE, {
+      const response = await fetch(API_ENDPOINTS.CLASSES.UPDATE, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          id: department.id,
+          id: classData.id,
           ...formData
         })
       });
 
       if (!response.ok) {
-        throw new Error('Không thể cập nhật thông tin khoa');
+        throw new Error('Không thể cập nhật thông tin lớp');
       }
 
       const data = await response.json();
@@ -60,7 +94,7 @@ function EditDepartment({ open, onClose, department, onUpdate }) {
         throw new Error(data.message || 'Cập nhật thất bại');
       }
     } catch (err) {
-      console.error('Lỗi khi cập nhật khoa:', err);
+      console.error('Lỗi khi cập nhật lớp:', err);
       setError(err.message || 'Không thể cập nhật thông tin');
     } finally {
       setLoading(false);
@@ -81,7 +115,7 @@ function EditDepartment({ open, onClose, department, onUpdate }) {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Cập nhật thông tin khoa</DialogTitle>
+      <DialogTitle>Cập nhật thông tin lớp</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           {error && (
@@ -91,21 +125,34 @@ function EditDepartment({ open, onClose, department, onUpdate }) {
           )}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
-              name="department_id"
-              label="Mã khoa"
-              value={formData.department_id}
+              name="class_id"
+              label="Mã lớp"
+              value={formData.class_id}
               onChange={handleChange}
               required
               fullWidth
             />
             <TextField
               name="name"
-              label="Tên khoa"
+              label="Tên lớp"
               value={formData.name}
               onChange={handleChange}
               required
               fullWidth
             />
+            <FormControl fullWidth>
+              <InputLabel>Khoa</InputLabel>
+              <Select
+                name="department_id"
+                value={formData.department_id}
+                onChange={handleChange}
+                required
+              >
+                {departments.map(dept => (
+                  <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
@@ -119,4 +166,4 @@ function EditDepartment({ open, onClose, department, onUpdate }) {
   );
 }
 
-export default EditDepartment;
+export default EditClass; 

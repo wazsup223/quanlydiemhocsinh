@@ -9,11 +9,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import EditDepartment from './EditDepartment'; // Form chỉnh sửa khoa
+import { API_ENDPOINTS } from '../config/api';
 
 function DepartmentList() {
   // --- 1. State quản lý dữ liệu ---
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // --- 2. State lọc và form sửa ---
   const [selectedSymbol, setSelectedSymbol] = useState('');
@@ -25,10 +27,25 @@ function DepartmentList() {
   // --- 4. Lấy danh sách khoa ---
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get('http://localhost/QLDiem/API/departments/readDepartments.php');
-      setDepartments(res.data?.data || []);
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(API_ENDPOINTS.DEPARTMENTS.LIST, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể kết nối đến máy chủ');
+      }
+
+      const data = await response.json();
+      setDepartments(data.data || []);
     } catch (err) {
-      console.error('Lỗi khi tải danh sách khoa:', err);
+      console.error('Lỗi khi tải dữ liệu:', err);
+      setError(err.message || 'Không thể tải dữ liệu');
     } finally {
       setLoading(false);
     }
@@ -45,23 +62,25 @@ function DepartmentList() {
 
   // --- 6. Xử lý xóa khoa ---
   const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa KHOA này không?')) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa khoa này?')) {
       try {
-        const res = await axios.post(
-          'http://localhost/QLDiem/API/departments/delete_departments.php',
-          JSON.stringify({ id }),
-          { headers: { 'Content-Type': 'application/json' } }
-        );
+        const response = await fetch(API_ENDPOINTS.DEPARTMENTS.DELETE, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id })
+        });
 
-        if (res.data && res.data.status === 'success') {
-          alert(res.data.message || 'Xóa thành công!');
-          fetchDepartments(); // Tải lại danh sách sau khi xóa
-        } else {
-          alert('Xóa thất bại: ' + (res.data?.message || 'Lỗi không xác định'));
+        if (!response.ok) {
+          throw new Error('Không thể xóa khoa');
         }
+
+        setDepartments(departments.filter(dept => dept.id !== id));
       } catch (err) {
         console.error('Lỗi khi xóa khoa:', err);
-        alert('Lỗi khi xóa khoa. Vui lòng thử lại sau.');
+        setError(err.message || 'Không thể xóa khoa');
       }
     }
   };
@@ -110,6 +129,22 @@ function DepartmentList() {
       ),
     },
   ];
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ height: 500, width: '100%' }}>

@@ -1,45 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Button, TextField, Typography, Grid, MenuItem, Paper
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, FormControl, InputLabel, Select,
+  MenuItem, Box, Typography, CircularProgress
 } from '@mui/material';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from '../config/api';
 
-
-
-function AddStudent() {
-  const [classes, setClasses] = useState([]);
+function AddStudent({ open, onClose, onAdd }) {
   const [formData, setFormData] = useState({
-    id: '',
+    student_id: '',
     first_name: '',
     last_name: '',
-    birth_day: '',
-    gender: '',
-    address: '',
     email: '',
+    address: '',
+    birth_day: '',
     phone: '',
+    gender: '0',
+    academic_year: '',
     class_id: '',
-    academic_year:''
+    department_id: ''
   });
+  const [classes, setClasses] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchClasses();
+    fetchDropdownData();
   }, []);
 
-  const navigate = useNavigate();
-
-  const fetchClasses = async () => {
+  const fetchDropdownData = async () => {
     try {
-      const response = await axios.get('http://localhost/QLDiem/API/classess/readClasses.php');
-      setClasses(response.data.data || []);
-    } catch (error) {
-      console.error('Lỗi lấy danh sách lớp:', error);
+      setLoading(true);
+      setError(null);
+
+      const [classesRes, departmentsRes] = await Promise.all([
+        fetch(API_ENDPOINTS.CLASSES.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(API_ENDPOINTS.DEPARTMENTS.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        })
+      ]);
+
+      if (!classesRes.ok || !departmentsRes.ok) {
+        throw new Error('Không thể kết nối đến máy chủ');
+      }
+
+      const classesData = await classesRes.json();
+      const departmentsData = await departmentsRes.json();
+
+      setClasses(classesData.data || []);
+      setDepartments(departmentsData.data || []);
+    } catch (err) {
+      console.error('Lỗi khi tải dữ liệu:', err);
+      setError(err.message || 'Không thể tải dữ liệu');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -47,124 +76,176 @@ function AddStudent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const now = new Date().toISOString();
-
-    const fullData = {
-      ...formData,
-            // Bạn có thể lấy từ input nếu cần
-      department_id: '1',              // Tạm để cố định, có thể fetch từ API khác nếu cần
-      created_at: now,
-      updated_at: now
-    };
-
     try {
-      await axios.post(
-        'http://localhost/QLDiem/API/students/createStudent.php',
-        JSON.stringify(fullData),
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      alert('Thêm sinh viên thành công!');
-      navigate('/students'); //chuyển trang sau khi thêm thành công
-      setFormData({
-        id: '',
-        first_name: '',
-        last_name: '',
-        birth_day: '',
-        gender: '',
-        address: '',
-        email: '',
-        phone: '',
-        class_id: '',
-        academic_year:''
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(API_ENDPOINTS.STUDENTS.CREATE, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
       });
-    } catch (error) {
-      console.error('Lỗi thêm sinh viên:', error);
-      alert('Có lỗi xảy ra khi thêm sinh viên!');
+
+      if (!response.ok) {
+        throw new Error('Không thể thêm sinh viên mới');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        onAdd();
+        onClose();
+      } else {
+        throw new Error(data.message || 'Thêm sinh viên thất bại');
+      }
+    } catch (err) {
+      console.error('Lỗi khi thêm sinh viên:', err);
+      setError(err.message || 'Không thể thêm sinh viên');
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogContent>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <CircularProgress />
+          </Box>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <Paper sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
-      <Typography variant="h5" gutterBottom>Thêm sinh viên mới</Typography>
-      <Box component="form" onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Mã sinh viên" name="id" fullWidth required value={formData.id} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Họ" name="first_name" fullWidth required value={formData.first_name} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Tên" name="last_name" fullWidth required value={formData.last_name} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Thêm sinh viên mới</DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
+              name="student_id"
+              label="Mã sinh viên"
+              value={formData.student_id}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="first_name"
+              label="Họ"
+              value={formData.first_name}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="last_name"
+              label="Tên"
+              value={formData.last_name}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="address"
+              label="Địa chỉ"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+            <TextField
+              name="birth_day"
               label="Ngày sinh"
               type="date"
-              name="birth_day"
-              fullWidth
-              required
               value={formData.birth_day}
               onChange={handleChange}
+              required
+              fullWidth
               InputLabelProps={{ shrink: true }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
             <TextField
-              label="Giới tính"
-              name="gender"
-              select
-              fullWidth
-              required
-              value={formData.gender}
+              name="phone"
+              label="Số điện thoại"
+              value={formData.phone}
               onChange={handleChange}
-            >
-              <MenuItem value="0">Nam</MenuItem>
-              <MenuItem value="1">Nữ</MenuItem>
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Địa chỉ" name="address" fullWidth required value={formData.address} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Email" name="email" fullWidth required value={formData.email} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Số điện thoại" name="phone" fullWidth required value={formData.phone} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-          <TextField label="Khoá" name="academic_year" fullWidth required value={formData.academic_year} onChange={handleChange} > </TextField>
-          </Grid>
-          <Grid item xs={12} sm={6}>
+              required
+              fullWidth
+            />
+            <FormControl fullWidth>
+              <InputLabel>Giới tính</InputLabel>
+              <Select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+              >
+                <MenuItem value="0">Nam</MenuItem>
+                <MenuItem value="1">Nữ</MenuItem>
+              </Select>
+            </FormControl>
             <TextField
-              label="Lớp"
-              name="class_id"
-              select
-              fullWidth
-              required
-              value={formData.class_id}
+              name="academic_year"
+              label="Niên khóa"
+              value={formData.academic_year}
               onChange={handleChange}
-            >
-              {classes.map((cls) => (
-                <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-        </Grid>
-
-        <Box mt={3}>
-          <Button type="submit" variant="contained" color="primary"  >
-            Thêm sinh viên
-           
+              required
+              fullWidth
+            />
+            <FormControl fullWidth>
+              <InputLabel>Lớp</InputLabel>
+              <Select
+                name="class_id"
+                value={formData.class_id}
+                onChange={handleChange}
+                required
+              >
+                {classes.map(cls => (
+                  <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Khoa</InputLabel>
+              <Select
+                name="department_id"
+                value={formData.department_id}
+                onChange={handleChange}
+                required
+              >
+                {departments.map(dept => (
+                  <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Hủy</Button>
+          <Button type="submit" variant="contained" color="primary">
+            Thêm
           </Button>
-        </Box>
-      </Box>
-    </Paper>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 }
 

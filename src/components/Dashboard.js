@@ -40,13 +40,48 @@ function Dashboard() {
         subjectsRes,
         gradesRes
       ] = await Promise.all([
-        fetch(API_ENDPOINTS.STUDENTS.LIST),
-        fetch(API_ENDPOINTS.CLASSES.LIST),
-        fetch(API_ENDPOINTS.DEPARTMENTS.LIST),
-        fetch(API_ENDPOINTS.INSTRUCTORS.LIST),
-        fetch(API_ENDPOINTS.SUBJECTS.LIST),
-        fetch(API_ENDPOINTS.GRADES.LIST),
+        fetch(API_ENDPOINTS.STUDENTS.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(API_ENDPOINTS.CLASSES.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(API_ENDPOINTS.DEPARTMENTS.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(API_ENDPOINTS.INSTRUCTORS.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(API_ENDPOINTS.SUBJECTS.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(API_ENDPOINTS.GRADES.LIST, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }),
       ]);
+
+      if (!studentsRes.ok || !classesRes.ok || !departmentsRes.ok || 
+          !instructorsRes.ok || !subjectsRes.ok || !gradesRes.ok) {
+        throw new Error('Không thể kết nối đến máy chủ');
+      }
 
       const studentsData = await studentsRes.json();
       const classesData = await classesRes.json();
@@ -77,7 +112,7 @@ function Dashboard() {
       });
     } catch (err) {
       console.error('Error fetching stats:', err);
-      setError('Không thể tải dữ liệu thống kê');
+      setError(err.message || 'Không thể tải dữ liệu thống kê');
     } finally {
       setLoading(false);
     }
