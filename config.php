@@ -15,16 +15,8 @@ if (file_exists($envFile)) {
     }
 }
 
-// CORS configuration
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-header("Access-Control-Allow-Credentials: true");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+// Include CORS configuration
+require_once __DIR__ . '/API/cors.php';
 
 class Database
 {
@@ -37,10 +29,10 @@ class Database
     public function __construct()
     {
         // Sử dụng biến môi trường hoặc giá trị mặc định
-        $this->host = $_ENV['DB_HOST'] ?? 'dpg-d01kejje5dus73b9pkig-a.singapore-postgres.render.com';
-        $this->db_name = $_ENV['DB_NAME'] ?? 'diemsv_nicy';
-        $this->username = $_ENV['DB_USER'] ?? 'minh';
-        $this->password = $_ENV['DB_PASS'] ?? 'DyokP4cDfu56PXmA9oARSCSkCPnExvFc';
+        $this->host = $_ENV['DB_HOST'] ?? 'dpg-cp4k0p8l6cac73b0q0tg-a.oregon-postgres.render.com';
+        $this->db_name = $_ENV['DB_NAME'] ?? 'diemsv_3h0d';
+        $this->username = $_ENV['DB_USER'] ?? 'diemsv_3h0d_user';
+        $this->password = $_ENV['DB_PASS'] ?? '8QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4';
     }
 
     public function getConnection()

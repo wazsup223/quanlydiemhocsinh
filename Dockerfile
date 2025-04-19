@@ -45,10 +45,11 @@ RUN echo '<VirtualHost *:80>\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Cấu hình CORS
-RUN echo 'Header set Access-Control-Allow-Origin "*"\n\
-Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"\n\
-Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"\n\
-Header set Access-Control-Allow-Credentials "true"' > /etc/apache2/conf-available/cors.conf
+RUN echo 'SetEnvIf Origin "^http(s)?://(.+\.)?(quanlydiemhocsinhstu\.netlify\.app)$" origin_is=$0\n\
+Header always set Access-Control-Allow-Origin "%{origin_is}e" env=origin_is\n\
+Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"\n\
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"\n\
+Header always set Access-Control-Allow-Credentials "true"' > /etc/apache2/conf-available/cors.conf
 RUN a2enconf cors
 
 # Expose port
