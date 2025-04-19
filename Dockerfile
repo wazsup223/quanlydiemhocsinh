@@ -44,6 +44,13 @@ RUN echo '<VirtualHost *:80>\n\
     CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
+# Cấu hình CORS
+RUN echo 'Header set Access-Control-Allow-Origin "*"\n\
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"\n\
+Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"\n\
+Header set Access-Control-Allow-Credentials "true"' > /etc/apache2/conf-available/cors.conf
+RUN a2enconf cors
+
 # Expose port
 EXPOSE 80
 

@@ -15,11 +15,11 @@ if (file_exists($envFile)) {
     }
 }
 
-// Cấu hình CORS
-header('Access-Control-Allow-Origin: https://quanlydiemhocsinhstu.netlify.app');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
+// CORS configuration
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Credentials: true");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -66,4 +66,13 @@ class Database
         }
     }
 }
+
+// Database configuration
+define('DB_HOST', 'dpg-cp4k0p8l6cac73b0q0tg-a.oregon-postgres.render.com');
+define('DB_NAME', 'diemsv_3h0d');
+define('DB_USER', 'diemsv_3h0d_user');
+define('DB_PASS', '8QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4');
+
+// API configuration
+define('API_BASE_URL', 'https://quanlydiembe.onrender.com/API');
 ?>
