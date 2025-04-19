@@ -2,13 +2,15 @@ services:
   - type: web
     name: ql-diem-backend
     env: docker
-    dockerfilePath: ./Dockerfile
+    plan: free
+    buildCommand: docker build -t ql-diem-backend .
+    startCommand: docker run -p 10000:80 ql-diem-backend
     envVars:
       - key: DB_HOST
-        value: dpg-d01kejje5dus73b9pkig-a.singapore-postgres.render.com
+        value: dpg-cp4k0p8l6cac73b0q0tg-a.oregon-postgres.render.com
       - key: DB_NAME
-        value: diemsv_nicy
+        value: diemsv_3h0d
       - key: DB_USER
-        value: minh
+        value: diemsv_3h0d_user
       - key: DB_PASS
-        value: DyokP4cDfu56PXmA9oARSCSkCPnExvFc 
+        value: 8QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4QJ4 

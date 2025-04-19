@@ -26,8 +26,23 @@ RUN if [ ! -f composer.json ]; then \
 RUN composer install --no-dev --optimize-autoloader
 
 # Cấu hình Apache
-RUN a2enmod rewrite
-RUN service apache2 restart
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN a2enmod rewrite headers
+RUN echo "DirectoryIndex index.php index.html" > /etc/apache2/conf-available/directory-index.conf
+RUN a2enconf directory-index
+
+# Cấu hình virtual host
+RUN echo '<VirtualHost *:80>\n\
+    ServerAdmin webmaster@localhost\n\
+    DocumentRoot /var/www/html\n\
+    <Directory /var/www/html>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Expose port
 EXPOSE 80
