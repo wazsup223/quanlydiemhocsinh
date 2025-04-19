@@ -1,0 +1,14 @@
+{
+    "name": "ql-diem/backend",
+    "description": "Backend API for QL Diem application",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+} 

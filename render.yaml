@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: ql-diem-backend
+    env: php
+    buildCommand: composer install
+    startCommand: php -S 0.0.0.0:$PORT
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DB_HOST
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false 
