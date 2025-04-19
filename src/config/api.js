@@ -1,4 +1,6 @@
-const API_BASE_URL = 'https://ql-diem-backend.onrender.com/API';
+import { config } from './env';
+
+const API_BASE_URL = config.API_BASE_URL;
 
 export const API_ENDPOINTS = {
   // Auth
@@ -13,6 +15,7 @@ export const API_ENDPOINTS = {
     BY_ACADEMIC_YEAR: `${API_BASE_URL}/students/readByAcademicYear.php`,
     BY_CLASS: `${API_BASE_URL}/students/readByClass.php`,
     BY_DEPARTMENT: `${API_BASE_URL}/students/readByDepartment.php`,
+    READ_ONE: `${API_BASE_URL}/students/read_one.php`,
   },
 
   // Subjects
@@ -22,6 +25,7 @@ export const API_ENDPOINTS = {
     UPDATE: `${API_BASE_URL}/subjects/update.php`,
     DELETE: `${API_BASE_URL}/subjects/delete.php`,
     BY_DEPARTMENT: `${API_BASE_URL}/subjects/readByDepartment.php`,
+    READ_ONE: `${API_BASE_URL}/subjects/read_one.php`,
   },
 
   // Classes
@@ -31,6 +35,7 @@ export const API_ENDPOINTS = {
     UPDATE: `${API_BASE_URL}/classess/update_classes.php`,
     DELETE: `${API_BASE_URL}/classess/delete_classes.php`,
     STUDENTS: `${API_BASE_URL}/classess/read_studentClasses.php`,
+    READ_ONE: `${API_BASE_URL}/classess/read_one.php`,
   },
 
   // Departments
@@ -39,6 +44,8 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/departments/createDepartment.php`,
     UPDATE: `${API_BASE_URL}/departments/updateDepartment.php`,
     DELETE: `${API_BASE_URL}/departments/deleteDepartment.php`,
+    READ_ONE: `${API_BASE_URL}/departments/read_oneDepartments.php`,
+    READ_DETAIL: `${API_BASE_URL}/departments/read_detail_departments.php`,
   },
 
   // Course Registrations
@@ -47,6 +54,9 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/student_reg/create.php`,
     UPDATE: `${API_BASE_URL}/student_reg/update.php`,
     DELETE: `${API_BASE_URL}/student_reg/delete.php`,
+    READ_ONE: `${API_BASE_URL}/student_reg/read_one.php`,
+    BY_STUDENT: `${API_BASE_URL}/student_reg/read_by_studentid.php`,
+    BY_SUBJECT: `${API_BASE_URL}/student_reg/read_by_subject.php`,
   },
 
   // Grades
@@ -65,6 +75,7 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/users/create.php`,
     UPDATE: `${API_BASE_URL}/users/update.php`,
     DELETE: `${API_BASE_URL}/users/delete.php`,
+    READ_ONE: `${API_BASE_URL}/users/read_one.php`,
   },
 
   // Instructors
@@ -73,12 +84,19 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/instructors/create.php`,
     UPDATE: `${API_BASE_URL}/instructors/update.php`,
     DELETE: `${API_BASE_URL}/instructors/delete.php`,
+    READ_ONE: `${API_BASE_URL}/instructors/read_one.php`,
   },
 
   // Teaching Assignments
   TEACHING_ASSIGNMENTS: {
+    LIST: `${API_BASE_URL}/teaching_assignments/read.php`,
+    CREATE: `${API_BASE_URL}/teaching_assignments/create.php`,
+    UPDATE: `${API_BASE_URL}/teaching_assignments/update.php`,
+    DELETE: `${API_BASE_URL}/teaching_assignments/delete.php`,
+    READ_ONE: `${API_BASE_URL}/teaching_assignments/read_one.php`,
     BY_INSTRUCTOR: `${API_BASE_URL}/teaching_assignments/read_by_instructor.php`,
     BY_SUBJECT: `${API_BASE_URL}/teaching_assignments/read_by_subject.php`,
     BY_CLASS: `${API_BASE_URL}/teaching_assignments/read_by_class.php`,
+    BY_SEMESTER: `${API_BASE_URL}/teaching_assignments/read_by_semester.php`,
   },
 }; 
