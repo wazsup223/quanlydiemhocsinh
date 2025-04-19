@@ -1,29 +1,32 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 # Cài đặt các extension cần thiết
 RUN apt-get update && apt-get install -y \
     libpq-dev \
-    nginx \
+    git \
+    unzip \
     && docker-php-ext-install pdo pdo_pgsql
 
 # Cài đặt Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Cấu hình Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Tạo thư mục làm việc
+WORKDIR /app
 
-# Copy source code
-COPY . /var/www/html
-WORKDIR /var/www/html
+# Copy composer files trước
+COPY composer.json composer.lock ./
 
 # Cài đặt dependencies
-RUN composer install
+RUN composer install --no-scripts --no-autoloader
 
-# Cấu hình quyền truy cập
-RUN chown -R www-data:www-data /var/www/html
+# Copy toàn bộ source code
+COPY . .
+
+# Tạo autoload
+RUN composer dump-autoload
 
 # Expose port
 EXPOSE 80
 
-# Start services
-CMD service nginx start && php-fpm 
+# Start PHP built-in server
+CMD ["php", "-S", "0.0.0.0:80"] 
