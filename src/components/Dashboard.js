@@ -9,9 +9,6 @@ import {
   Business as BusinessIcon,
   Person as PersonIcon
 } from '@mui/icons-material';
-import {
-  BarChart, Bar, XAxis, Tooltip, ResponsiveContainer
-} from 'recharts';
 import { API_ENDPOINTS } from '../config/api';
 
 function Dashboard() {
