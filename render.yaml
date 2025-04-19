@@ -2,7 +2,9 @@ services:
   - type: web
     name: ql-diem-backend
     env: php
-    buildCommand: composer install
+    buildCommand: |
+      curl -sS https://getcomposer.org/installer | php
+      php composer.phar install
     startCommand: php -S 0.0.0.0:$PORT
     envVars:
       - key: PORT
