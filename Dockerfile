@@ -1,3 +1,11 @@
+# Build stage
+FROM composer:2.5 as composer
+
+WORKDIR /app
+COPY . .
+RUN composer install --no-scripts --no-autoloader
+
+# Runtime stage
 FROM php:8.2-cli
 
 # Cài đặt các extension cần thiết
@@ -7,20 +15,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-install pdo pdo_pgsql
 
-# Cài đặt Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Tạo thư mục làm việc
+# Copy code và dependencies từ build stage
+COPY --from=composer /app /app
 WORKDIR /app
-
-# Copy composer.json
-COPY composer.json ./
-
-# Cài đặt dependencies
-RUN composer install --no-scripts --no-autoloader
-
-# Copy toàn bộ source code
-COPY . .
 
 # Tạo autoload
 RUN composer dump-autoload
