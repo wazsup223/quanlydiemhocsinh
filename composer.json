@@ -4,8 +4,7 @@
     "type": "project",
     "require": {
         "php": ">=7.4",
-        "ext-pdo": "*",
-        "ext-pgsql": "*"
+        "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {

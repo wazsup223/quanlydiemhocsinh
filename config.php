@@ -25,6 +25,7 @@ class Database
 
     public function __construct()
     {
+        // Sử dụng biến môi trường hoặc giá trị mặc định
         $this->host = $_ENV['DB_HOST'] ?? 'dpg-d01kejje5dus73b9pkig-a.singapore-postgres.render.com';
         $this->db_name = $_ENV['DB_NAME'] ?? 'diemsv_nicy';
         $this->username = $_ENV['DB_USER'] ?? 'minh';
@@ -36,7 +37,7 @@ class Database
         $this->conn = null;
 
         try {
-            $dsn = "pgsql:host=" . $this->host . ";port=5432;dbname=" . $this->db_name . ";";
+            $dsn = "pgsql:host=" . $this->host . ";port=5432;dbname=" . $this->db_name;
             $this->conn = new PDO(
                 $dsn,
                 $this->username,
