@@ -9,14 +9,16 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Tạo và chuyển đến thư mục làm việc
 WORKDIR /var/www/html
 
-# Copy composer files trước
-COPY composer.json composer.lock ./
+# Copy source code
+COPY . .
+
+# Tạo composer.json nếu chưa có
+RUN if [ ! -f composer.json ]; then \
+    echo '{"require": {"php": ">=7.4", "ext-pdo": "*"}}' > composer.json; \
+    fi
 
 # Cài đặt dependencies
 RUN composer install --no-dev --optimize-autoloader
-
-# Copy source code
-COPY . .
 
 # Cấu hình Apache
 RUN a2enmod rewrite
