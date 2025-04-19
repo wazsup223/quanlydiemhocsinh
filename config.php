@@ -25,10 +25,10 @@ class Database
 
     public function __construct()
     {
-        $this->host = $_ENV['DB_HOST'] ?? 'localhost';
-        $this->db_name = $_ENV['DB_NAME'] ?? 'diemsv';
-        $this->username = $_ENV['DB_USER'] ?? 'root';
-        $this->password = $_ENV['DB_PASS'] ?? '';
+        $this->host = $_ENV['DB_HOST'] ?? 'dpg-d01kejje5dus73b9pkig-a.singapore-postgres.render.com';
+        $this->db_name = $_ENV['DB_NAME'] ?? 'diemsv_nicy';
+        $this->username = $_ENV['DB_USER'] ?? 'minh';
+        $this->password = $_ENV['DB_PASS'] ?? 'DyokP4cDfu56PXmA9oARSCSkCPnExvFc';
     }
 
     public function getConnection()
@@ -36,13 +36,13 @@ class Database
         $this->conn = null;
 
         try {
+            $dsn = "pgsql:host=" . $this->host . ";port=5432;dbname=" . $this->db_name . ";";
             $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
+                $dsn,
                 $this->username,
                 $this->password,
                 array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
             );
-            $this->conn->exec("set names utf8");
             return $this->conn;
         } catch (PDOException $exception) {
             error_log("Lỗi kết nối database: " . $exception->getMessage());

@@ -8,10 +8,10 @@ services:
       - key: PORT
         value: 10000
       - key: DB_HOST
-        sync: false
+        value: dpg-d01kejje5dus73b9pkig-a.singapore-postgres.render.com
       - key: DB_NAME
-        sync: false
+        value: diemsv_nicy
       - key: DB_USER
-        sync: false
+        value: minh
       - key: DB_PASS
-        sync: false 
+        value: DyokP4cDfu56PXmA9oARSCSkCPnExvFc 
