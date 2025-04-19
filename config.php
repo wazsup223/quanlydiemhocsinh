@@ -42,7 +42,11 @@ class Database
                 $dsn,
                 $this->username,
                 $this->password,
-                array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+                array(
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                )
             );
             return $this->conn;
         } catch (PDOException $exception) {
