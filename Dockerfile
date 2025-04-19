@@ -13,8 +13,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Tạo thư mục làm việc
 WORKDIR /app
 
-# Copy composer files trước
-COPY composer.json composer.lock ./
+# Copy composer.json
+COPY composer.json ./
 
 # Cài đặt dependencies
 RUN composer install --no-scripts --no-autoloader
