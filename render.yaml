@@ -1,14 +1,10 @@
 services:
   - type: web
     name: ql-diem-backend
-    env: php
-    buildCommand: |
-      curl -sS https://getcomposer.org/installer | php
-      php composer.phar install
-    startCommand: php -S 0.0.0.0:$PORT
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: PORT
-        value: 10000
+        value: 80
       - key: DB_HOST
         value: dpg-d01kejje5dus73b9pkig-a.singapore-postgres.render.com
       - key: DB_NAME
