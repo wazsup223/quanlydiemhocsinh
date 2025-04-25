@@ -1,16 +1,7 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: *");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
+include_once '../../cors.php';
 include_once '../../config.php';
-include_once '../../models/grades.php';
+include_once '../../models/Grade.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -32,16 +23,15 @@ if ($num > 0) {
 
         $grade_item = array(
             "id" => $id,
+            "student_id" => $student_id,
+            "student_name" => $student_name,
+            "subject_id" => $subject_id,
+            "subject_name" => $subject_name,
             "process_score" => $process_score,
             "midterm_score" => $midterm_score,
             "final_score" => $final_score,
-            "subject_id" => $subject_id,
-            "student_id" => $student_id,
-            "by_instructor_id" => $by_instructor_id,
-            "full_name" => $full_name,
-            "student_name" => $student_first_name . ' ' . $student_last_name,
-            "subject_name" => $subject_name,
-            "instructor_name" => $instructor_first_name . ' ' . $instructor_last_name,
+            "total_score" => $total_score,
+            "letter_grade" => $letter_grade,
             "created_at" => $created_at,
             "updated_at" => $updated_at
         );

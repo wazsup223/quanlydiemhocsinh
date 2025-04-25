@@ -1,9 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: *"); // Cho phép mọi domain truy cập
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
+include_once '../../cors.php';
 include_once '../../config.php';
 include_once '../../models/students.php';
 
@@ -39,7 +35,6 @@ if ($num > 0) {
             "class_name" => $class_name,
             "department_name" => $department_name,
             "department_id" => $department_id,
-
             "created_at" => $created_at,
             "updated_at" => $updated_at
         );

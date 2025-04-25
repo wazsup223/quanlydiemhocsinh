@@ -1,23 +1,14 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: *");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
+include_once '../../cors.php';
 include_once '../../config.php';
-include_once '../../models/departments.php';
+include_once '../../models/Department.php';
 
 $database = new Database();
 $db = $database->getConnection();
 
-$departments = new Departments($db);
+$department = new Department($db);
 
-$stmt = $departments->read();
+$stmt = $department->read();
 $num = $stmt->rowCount();
 
 $response = array(
@@ -30,16 +21,17 @@ if ($num > 0) {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         extract($row);
 
-        $departments_item = array(
+        $department_item = array(
             "id" => $id,
-            "symbol" => $symbol,
             "name" => $name,
+            "description" => $description,
             "created_at" => $created_at,
             "updated_at" => $updated_at
         );
 
-        array_push($response["data"], $departments_item);
+        array_push($response["data"], $department_item);
     }
+
     $response["message"] = "Lấy danh sách khoa thành công";
     http_response_code(200);
 } else {
