@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Allow from specific origin
 $allowed_origin = 'https://quanlydiemhocsinhstu.netlify.app';
 
@@ -25,4 +29,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit(0);
 }
+
+// Set error handler to return JSON
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    $response = array(
+        "status" => "error",
+        "message" => "Server error: $errstr",
+        "data" => array()
+    );
+    http_response_code(500);
+    echo json_encode($response);
+    exit(1);
+});
+
+// Set exception handler to return JSON
+set_exception_handler(function($exception) {
+    $response = array(
+        "status" => "error",
+        "message" => "Server error: " . $exception->getMessage(),
+        "data" => array()
+    );
+    http_response_code(500);
+    echo json_encode($response);
+    exit(1);
+});
 ?> 
