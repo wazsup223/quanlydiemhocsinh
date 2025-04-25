@@ -2,6 +2,15 @@
 // Allow from specific origin
 $allowed_origin = 'https://quanlydiemhocsinhstu.netlify.app';
 
+// Remove any existing CORS headers
+header_remove('Access-Control-Allow-Origin');
+header_remove('Access-Control-Allow-Credentials');
+header_remove('Access-Control-Max-Age');
+header_remove('Access-Control-Allow-Methods');
+header_remove('Access-Control-Allow-Headers');
+header_remove('Content-Type');
+header_remove('Vary');
+
 // Set CORS headers
 header("Access-Control-Allow-Origin: $allowed_origin");
 header('Access-Control-Allow-Credentials: true');
