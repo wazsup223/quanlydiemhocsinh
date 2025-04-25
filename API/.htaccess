@@ -1,9 +1,17 @@
 # Enable CORS
-Header always set Access-Control-Allow-Origin "https://quanlydiemhocsinhstu.netlify.app"
-Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Origin, Accept"
-Header always set Access-Control-Allow-Credentials "true"
-Header always set Access-Control-Max-Age "86400"
+<IfModule mod_headers.c>
+    Header unset Access-Control-Allow-Origin
+    Header unset Access-Control-Allow-Methods
+    Header unset Access-Control-Allow-Headers
+    Header unset Access-Control-Allow-Credentials
+    Header unset Access-Control-Max-Age
+    
+    Header set Access-Control-Allow-Origin "https://quanlydiemhocsinhstu.netlify.app"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Origin, Accept"
+    Header set Access-Control-Allow-Credentials "true"
+    Header set Access-Control-Max-Age "86400"
+</IfModule>
 
 # Handle preflight requests
 RewriteEngine On
