@@ -1,61 +1,51 @@
 <?php
-// Include files
-require_once '../../cors.php';
-require_once '../../config.php';
-require_once '../../models/Grade.php';
+include_once '../../cors.php';
+include_once '../../config.php';
+include_once '../../models/Grade.php';
 
-try {
-    $database = new Database();
-    $db = $database->getConnection();
+$database = new Database();
+$db = $database->getConnection();
 
-    $grade = new Grade($db);
-    $stmt = $grade->read();
-    $num = $stmt->rowCount();
+$grade = new Grade($db);
 
-    $response = array(
-        "status" => "success",
-        "message" => "",
-        "data" => array()
-    );
+$stmt = $grade->read();
+$num = $stmt->rowCount();
 
-    if ($num > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            extract($row);
+$response = array(
+    "status" => "success",
+    "message" => "",
+    "data" => array()
+);
 
-            $grade_item = array(
-                "id" => $id,
-                "student_id" => $student_id,
-                "student_name" => $student_name,
-                "subject_id" => $subject_id,
-                "subject_name" => $subject_name,
-                "process_score" => $process_score,
-                "midterm_score" => $midterm_score,
-                "final_score" => $final_score,
-                "total_score" => $total_score,
-                "letter_grade" => $letter_grade,
-                "created_at" => $created_at,
-                "updated_at" => $updated_at
-            );
+if ($num > 0) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
 
-            array_push($response["data"], $grade_item);
-        }
+        $grade_item = array(
+            "id" => $id,
+            "student_id" => $student_id,
+            "student_name" => $student_name,
+            "subject_id" => $subject_id,
+            "subject_name" => $subject_name,
+            "process_score" => $process_score,
+            "midterm_score" => $midterm_score,
+            "final_score" => $final_score,
+            "total_score" => $total_score,
+            "letter_grade" => $letter_grade,
+            "created_at" => $created_at,
+            "updated_at" => $updated_at
+        );
 
-        $response["message"] = "Lấy danh sách điểm thành công";
-        http_response_code(200);
-    } else {
-        $response["status"] = "error";
-        $response["message"] = "Không tìm thấy điểm nào";
-        http_response_code(404);
+        array_push($response["data"], $grade_item);
     }
 
-    echo json_encode($response);
-} catch (Exception $e) {
-    $response = array(
-        "status" => "error",
-        "message" => "Lỗi server: " . $e->getMessage(),
-        "data" => array()
-    );
-    http_response_code(500);
-    echo json_encode($response);
+    $response["message"] = "Lấy danh sách điểm thành công";
+    http_response_code(200);
+} else {
+    $response["status"] = "error";
+    $response["message"] = "Không tìm thấy điểm nào";
+    http_response_code(404);
 }
+
+echo json_encode($response);
 ?>

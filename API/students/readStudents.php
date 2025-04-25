@@ -1,64 +1,54 @@
 <?php
-// Include files
-require_once '../../cors.php';
-require_once '../../config.php';
-require_once '../../models/Student.php';
+include_once '../../cors.php';
+include_once '../../config.php';
+include_once '../../models/Student.php';
 
-try {
-    $database = new Database();
-    $db = $database->getConnection();
+$database = new Database();
+$db = $database->getConnection();
 
-    $student = new Student($db);
-    $stmt = $student->read();
-    $num = $stmt->rowCount();
+$student = new Student($db);
 
-    $response = array(
-        "status" => "success",
-        "message" => "",
-        "data" => array()
-    );
+$stmt = $student->read();
+$num = $stmt->rowCount();
 
-    if ($num > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            extract($row);
+$response = array(
+    "status" => "success",
+    "message" => "",
+    "data" => array()
+);
 
-            $student_item = array(
-                "id" => $id,
-                "first_name" => $first_name,
-                "last_name" => $last_name,
-                "email" => $email,
-                "address" => $address,
-                "birth_day" => $birth_day,
-                "phone" => $phone,
-                "gender" => $gender,
-                "academic_year" => $academic_year,
-                "class_id" => $class_id,
-                "class_name" => $class_name,
-                "department_name" => $department_name,
-                "department_id" => $department_id,
-                "created_at" => $created_at,
-                "updated_at" => $updated_at
-            );
+if ($num > 0) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
 
-            array_push($response["data"], $student_item);
-        }
+        $student_item = array(
+            "id" => $id,
+            "first_name" => $first_name,
+            "last_name" => $last_name,
+            "email" => $email,
+            "address" => $address,
+            "birth_day" => $birth_day,
+            "phone" => $phone,
+            "gender" => $gender,
+            "academic_year" => $academic_year,
+            "class_id" => $class_id,
+            "class_name" => $class_name,
+            "department_name" => $department_name,
+            "department_id" => $department_id,
+            "created_at" => $created_at,
+            "updated_at" => $updated_at
+        );
 
-        $response["message"] = "Lấy danh sách sinh viên thành công";
-        http_response_code(200);
-    } else {
-        $response["status"] = "error";
-        $response["message"] = "Không tìm thấy sinh viên nào";
-        http_response_code(404);
+        array_push($response["data"], $student_item);
     }
 
-    echo json_encode($response);
-} catch (Exception $e) {
-    $response = array(
-        "status" => "error",
-        "message" => "Lỗi server: " . $e->getMessage(),
-        "data" => array()
-    );
-    http_response_code(500);
-    echo json_encode($response);
+    $response["message"] = "Lấy danh sách sinh viên thành công";
+    http_response_code(200);
+} else {
+    $response["status"] = "error";
+    $response["message"] = "Không tìm thấy sinh viên nào";
+    http_response_code(404);
 }
+
+echo json_encode($response);
 ?>

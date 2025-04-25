@@ -1,54 +1,44 @@
 <?php
-// Include files
-require_once '../../cors.php';
-require_once '../../config.php';
-require_once '../../models/Department.php';
+include_once '../../cors.php';
+include_once '../../config.php';
+include_once '../../models/Department.php';
 
-try {
-    $database = new Database();
-    $db = $database->getConnection();
+$database = new Database();
+$db = $database->getConnection();
 
-    $department = new Department($db);
-    $stmt = $department->read();
-    $num = $stmt->rowCount();
+$department = new Department($db);
 
-    $response = array(
-        "status" => "success",
-        "message" => "",
-        "data" => array()
-    );
+$stmt = $department->read();
+$num = $stmt->rowCount();
 
-    if ($num > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            extract($row);
+$response = array(
+    "status" => "success",
+    "message" => "",
+    "data" => array()
+);
 
-            $department_item = array(
-                "id" => $id,
-                "name" => $name,
-                "description" => $description,
-                "created_at" => $created_at,
-                "updated_at" => $updated_at
-            );
+if ($num > 0) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
 
-            array_push($response["data"], $department_item);
-        }
+        $department_item = array(
+            "id" => $id,
+            "name" => $name,
+            "description" => $description,
+            "created_at" => $created_at,
+            "updated_at" => $updated_at
+        );
 
-        $response["message"] = "Lấy danh sách khoa thành công";
-        http_response_code(200);
-    } else {
-        $response["status"] = "error";
-        $response["message"] = "Không tìm thấy khoa nào";
-        http_response_code(404);
+        array_push($response["data"], $department_item);
     }
 
-    echo json_encode($response);
-} catch (Exception $e) {
-    $response = array(
-        "status" => "error",
-        "message" => "Lỗi server: " . $e->getMessage(),
-        "data" => array()
-    );
-    http_response_code(500);
-    echo json_encode($response);
+    $response["message"] = "Lấy danh sách khoa thành công";
+    http_response_code(200);
+} else {
+    $response["status"] = "error";
+    $response["message"] = "Không tìm thấy khoa nào";
+    http_response_code(404);
 }
+
+echo json_encode($response);
 ?>
